@@ -1,0 +1,30 @@
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Java / Maven
+*.class
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Node.js / React
+node_modules/
+dist/
+build/
+.vite/
+
+# IDE files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
