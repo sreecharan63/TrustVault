@@ -35,14 +35,15 @@
 - [x] Created initial project folders.
 - [x] Created `.gitignore`.
 - [x] Created `README.md`.
+- [x] Created private GitHub repository.
+- [x] Connected local repository to GitHub.
+- [x] Uploaded initial commit to GitHub.
 
 ## 4. Pending Tasks
 
 ### Environment and Repository
 - [ ] Verify Java installation.
-- [ ] Configure GitHub repository.
-- [ ] Connect local Git repository to GitHub.
-- [ ] Create first Git commit.
+- [ ] Install and configure Docker Desktop.
 - [ ] Install and configure Docker Desktop.
 
 ### Backend
