@@ -15,6 +15,11 @@ dist/
 build/
 .vite/
 
+# Local document storage
+/storage/
+downloaded-sample.txt
+/test-files/
+
 # IDE files
 .idea/
 .vscode/*
@@ -28,5 +33,5 @@ desktop.ini
 # Logs
 *.log
 
-# Local project archive
+# Local project archives
 /trustvault.zip
