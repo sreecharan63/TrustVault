@@ -1,4 +1,3 @@
-
 package com.snovasys.trustvault.document.entity;
 
 import com.snovasys.trustvault.user.entity.AppUser;
@@ -25,6 +24,9 @@ public class DocumentPermission {
 
     @Column(name = "can_read", nullable = false)
     private boolean canRead = true;
+
+    @Column(name = "can_edit", nullable = false)
+    private boolean canEdit = false;
 
     @Column(name = "can_download", nullable = false)
     private boolean canDownload = false;
@@ -72,6 +74,14 @@ public class DocumentPermission {
 
     public void setCanRead(boolean canRead) {
         this.canRead = canRead;
+    }
+
+    public boolean isCanEdit() {
+        return canEdit;
+    }
+
+    public void setCanEdit(boolean canEdit) {
+        this.canEdit = canEdit;
     }
 
     public boolean isCanDownload() {

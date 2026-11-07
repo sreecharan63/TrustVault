@@ -1,73 +1,76 @@
 # TrustVault – Secure Document Sharing with a Real Audit Trail
 
-## Project Overview
+TrustVault is a production-grade full-stack document management and sharing application built for the **Snovasys Fresher Hiring Challenge**. It protects sensitive documents using strict server-side authorization, independent read/edit/download permissions, automated document versioning, and an immutable PostgreSQL audit trail.
 
-TrustVault is a secure document-sharing application designed to protect confidential documents through role-based authentication, document-level access permissions, and an audit trail.
+---
 
-The system aims to ensure that only authorized users can access, download, modify, or delete documents. It also records important activities to support accountability and security monitoring.
+## 🚀 Quick Start Guide
 
-## Project Objectives
+### 1. Prerequisites
+- **Java 21 JDK**
+- **Node.js (v18+) & npm**
+- **PostgreSQL 17** running on `localhost:5432` with database `trustvault`
 
-- Implement secure user authentication.
-- Support Administrator, Document Owner, and Viewer roles.
-- Allow users to upload, search, and manage documents.
-- Provide document-level access permissions.
-- Allow owners to grant and revoke document access.
-- Maintain an audit trail of important activities.
-- Prevent unauthorized document access.
-- Support document versioning.
-- Provide administrative monitoring and activity tracking.
+### 2. Running the Backend
+From the repository root:
 
-## Technology Stack
+```powershell
+$env:TRUSTVAULT_DB_URL="jdbc:postgresql://localhost:5432/trustvault"
+$env:TRUSTVAULT_DB_USERNAME="postgres"
+$env:TRUSTVAULT_DB_PASSWORD="admin"
+$env:TRUSTVAULT_JWT_SECRET="F71F98C8C8D714F1A84FBE32389305A468A2F007B866E869755A66E8A1F8C2BA"
 
-- **Backend:** Java 21, Spring Boot
-- **Security:** Spring Security, JWT, BCrypt
-- **Frontend:** React, Vite
-- **Database:** PostgreSQL
-- **ORM:** Spring Data JPA, Hibernate
-- **Database Migrations:** Flyway
-- **Testing:** JUnit 5, Mockito
-- **Version Control:** Git and GitHub
+cd backend
+.\mvnw.cmd spring-boot:run
+```
+The backend starts at `http://localhost:8080`.
 
-## Project Structure
+### 3. Running the Frontend
+In a separate terminal:
 
-```text
-TrustVault/
-├── backend/
-├── frontend/
-├── database/
-├── docs/
-├── .gitignore
-└── README.md
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+The frontend is available at `http://localhost:5173`.
+
+### 4. Running Automated Tests
+```powershell
+$env:TRUSTVAULT_DB_URL="jdbc:postgresql://localhost:5432/trustvault"
+$env:TRUSTVAULT_DB_USERNAME="postgres"
+$env:TRUSTVAULT_DB_PASSWORD="admin"
+$env:TRUSTVAULT_JWT_SECRET="F71F98C8C8D714F1A84FBE32389305A468A2F007B866E869755A66E8A1F8C2BA"
+
+cd backend
+.\mvnw.cmd test
 ```
 
-## Security Principles
+---
 
-- Enforce authorization on the server side.
-- Check document permissions before every protected operation.
-- Store passwords securely using password hashing.
-- Keep uploaded documents outside publicly accessible directories.
-- Record successful and failed access attempts.
-- Protect audit records against unauthorized modification.
-- Never expose passwords, tokens, or secrets in source control.
+## 🛠️ Architecture & Technology Stack
 
-## Project Status
+- **Backend:** Java 21, Spring Boot 4.0.0, Spring Data JPA, Hibernate ORM
+- **Security:** Spring Security (stateless session), BCrypt (strength 12), JJWT (HS512)
+- **Database & Migrations:** PostgreSQL 17, Flyway migrations (V1, V2, V3)
+- **Frontend:** React 18, Vite, React Router v6, Axios
+- **Storage:** Isolated filesystem storage with SHA-256 integrity verification
+- **Audit Immutability:** PostgreSQL trigger preventing any `UPDATE` or `DELETE` on `audit_logs`
 
-Under development.
+---
 
-## Documentation
+## 🔐 Key Features
 
-Additional documentation will include:
+1. **Granular Permissions:** Separate `canRead`, `canEdit`, and `canDownload` flags per document recipient. Immediate revocation stops access in real-time.
+2. **Document Versioning:** Modifying document files preserves historical snapshots and increments version count. Prior versions can be inspected, downloaded, or restored.
+3. **Comprehensive Audit Trail:** All sensitive operations (`DOCUMENT_UPLOAD`, `DOCUMENT_DOWNLOAD`, `DOCUMENT_EDIT`, `DOCUMENT_DELETE`, `PERMISSION_GRANT`, `PERMISSION_REVOKE`, etc.) are recorded with actor, IP, outcome, and timestamp.
+4. **Role Segregation:** Separation between document ownership and system roles (`ADMIN` and `USER`). Administrators monitor security audit events without automatic backdoor access to private document contents.
+5. **Interactive UI:** Clean dark-mode interface with live search, category tagging, document sharing modals, version history browser, and administrator audit dashboard.
 
-- `PROJECT_STATUS.md` – Development progress.
-- `TESTS.md` – Test cases and results.
-- `PROMPTS.md` – AI usage and engineering decisions.
-- `API_DOCUMENTATION.md` – Backend API reference.
+---
 
-## Running the Application
+## 📂 Documentation
 
-Setup and execution instructions will be added after backend, frontend, and database configuration.
-
-## Author
-
-Individual project developed for the Snovasys Fresher Hiring Challenge.
+- [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) – Detailed REST API specification.
+- [docs/TESTS.md](docs/TESTS.md) – Automated test suite and security verification details.
+- [PROJECT_STATUS.md](PROJECT_STATUS.md) – Implementation status and verification checklist.

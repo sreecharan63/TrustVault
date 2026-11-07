@@ -1,10 +1,10 @@
-
 package com.snovasys.trustvault.user.service;
 
 import com.snovasys.trustvault.security.JwtService;
 import com.snovasys.trustvault.user.dto.AuthResponse;
 import com.snovasys.trustvault.user.dto.LoginRequest;
 import com.snovasys.trustvault.user.dto.RegisterRequest;
+import com.snovasys.trustvault.user.dto.UserProfileResponse;
 import com.snovasys.trustvault.user.entity.AppUser;
 import com.snovasys.trustvault.user.entity.Role;
 import com.snovasys.trustvault.user.repository.AppUserRepository;
@@ -86,6 +86,29 @@ public class AuthService {
                 token,
                 "Bearer",
                 jwtService.getExpirationMs()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileResponse getProfile(String email) {
+        if (email == null || email.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "User is not authenticated"
+            );
+        }
+
+        AppUser user = userRepository.findByEmail(email.trim().toLowerCase())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Authenticated user not found"
+                ));
+
+        return new UserProfileResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getRole().name()
         );
     }
 }

@@ -4,105 +4,82 @@
 
 - **Project:** TrustVault – Secure Document Sharing with a Real Audit Trail
 - **Challenge:** Snovasys Fresher Hiring Challenge
-- **Development Start:** 1 November 2026
-- **Official Submission Deadline:** 7 November 2026, 6:00 PM IST
-- **Internal Completion Target:** 4 November 2026
-- **Current Status:** Initial environment setup
+- **Current Status:** Feature-Complete, Tested & Running
+- **Frontend URL:** `http://localhost:5173`
+- **Backend URL:** `http://localhost:8080`
 
-## 2. Technology Stack
+---
 
-| Component | Technology | Status |
-|---|---|---|
-| Backend | Java 21, Spring Boot 3.5.x | Planned |
-| Security | Spring Security, JWT, BCrypt | Planned |
-| Frontend | React, Vite | Planned |
-| Database | PostgreSQL | Planned |
-| ORM | Spring Data JPA, Hibernate | Planned |
-| Migrations | Flyway | Planned |
-| Testing | JUnit 5, Mockito | Planned |
-| Version Control | Git, GitHub | Git initialized locally |
-| Containerization | Docker Compose | Not installed |
+## 2. Technology Stack & Verification
 
-## 3. Completed Tasks
+| Component | Technology | Version | Status |
+|---|---|---|---|
+| Backend | Java, Spring Boot | Java 21, Spring Boot 4.0.0 | Verified & Running (port 8080) |
+| Security | Spring Security, JJWT, BCrypt | JJWT 0.12.6, BCrypt (strength 12) | Enforced & Tested |
+| Frontend | React, Vite, React Router, Axios | React 18.3, Vite 6.0 | Verified & Running (port 5173) |
+| Database | PostgreSQL | PostgreSQL 17.11 (port 5432) | Active |
+| Migrations | Flyway | Flyway 11.13.0 | Schema Version 3 Applied |
+| Testing | JUnit 5, Spring Security Test | 7 / 7 Tests Passing | BUILD SUCCESS |
+| Version Control | Git | Local `main` branch | Tracked |
 
-- [x] Verified Java JDK 21 installation (reported installed; runtime verification pending).
-- [x] Verified Git installation.
-- [x] Configured Git username and email.
-- [x] Created `D:\TrustVault`.
-- [x] Initialized local Git repository.
-- [x] Renamed the initial branch to `main`.
-- [x] Opened TrustVault in VS Code.
-- [x] Created initial project folders.
-- [x] Created `.gitignore`.
-- [x] Created `README.md`.
-- [x] Created private GitHub repository.
-- [x] Connected local repository to GitHub.
-- [x] Uploaded initial commit to GitHub.
+---
 
-## 4. Pending Tasks
+## 3. Completed Architecture & Features
 
-### Environment and Repository
-- [ ] Verify Java installation.
-- [ ] Install and configure Docker Desktop.
-- [ ] Install and configure Docker Desktop.
+### A. Authentication & User Management
+- [x] BCrypt (strength 12) password hashing.
+- [x] Stateless JWT authentication with standard response format (`accessToken`, `tokenType`, `expiresIn`).
+- [x] Global role-based access control (`USER` and `ADMIN`).
+- [x] Current user profile endpoint (`GET /api/auth/me`).
+- [x] Client session management with automatic token attachment and 401 handling.
 
-### Backend
-- [ ] Generate Spring Boot application.
-- [ ] Configure PostgreSQL.
-- [ ] Implement user authentication.
-- [ ] Implement role-based authorization.
-- [ ] Implement document management.
-- [ ] Implement document-level permissions.
-- [ ] Implement document versioning.
-- [ ] Implement audit logging.
-- [ ] Implement security controls.
+### B. Document Management & File Storage
+- [x] Local storage outside web root (`D:\TrustVault\storage`).
+- [x] SHA-256 integrity checksum calculation upon upload and edit.
+- [x] MIME/type detection and file size validation.
+- [x] Metadata support: categorization and tag filtering.
+- [x] Full search over filename, description, category, and tags.
+- [x] Safe soft delete (`DELETED` status, timestamped, hidden from document listings).
+- [x] Preview (inline stream) and Download (attachment stream) endpoints.
 
-### Frontend
-- [ ] Set up React application.
-- [ ] Implement login and registration.
-- [ ] Implement document dashboard.
-- [ ] Implement document upload and search.
-- [ ] Implement document sharing interface.
-- [ ] Implement administrator dashboard.
+### C. Granular Sharing & Permissions
+- [x] Independent flags: `canRead`, `canEdit`, `canDownload`.
+- [x] Immediate revocation (`DELETE /api/documents/{id}/share?recipientEmail=...`).
+- [x] Permission modification (`PUT /api/documents/{id}/share`).
+- [x] Prevention of duplicate active permissions and sharing with self.
+- [x] Verification of active recipient account status.
+- [x] Shared-by-me and shared-with-me views.
 
-### Testing and Submission
-- [ ] Write automated tests.
-- [ ] Complete security and threat testing.
-- [ ] Prepare API documentation.
-- [ ] Complete `TESTS.md`.
-- [ ] Maintain `PROMPTS.md`.
-- [ ] Deploy application.
-- [ ] Record demonstration video.
-- [ ] Complete final submission.
+### D. Document Versioning
+- [x] Automated historical snapshots on file modification (`document_versions` table).
+- [x] Monotonically increasing version counter (`current_version_number`).
+- [x] Version listing and specific historical version download.
+- [x] Historical version restore with collision-safe storage file duplication.
 
-## 5. Security Priorities
+### E. Immutability & Audit Trail
+- [x] Tamper-resistant PostgreSQL audit log schema.
+- [x] Database-level trigger (`prevent_audit_log_modification`) prohibiting `UPDATE` and `DELETE`.
+- [x] Transactional propagation guarantees:
+  - Successful operations: `Propagation.MANDATORY`.
+  - Denied / unauthorized operations: `Propagation.REQUIRES_NEW`.
+- [x] Non-repudiation: captures actor email, client IP, user agent, event type, and outcome.
+- [x] Administrator audit query API with multi-field filtering (actor, event type, outcome, resource, dates) and pagination.
+- [x] Per-document activity trail accessible to owners and authorized collaborators.
 
-- Server-side authorization for every protected operation.
-- Immediate permission revocation.
-- Secure password hashing.
-- Protected document storage.
-- Audit logging for successful and failed access attempts.
-- Prevention of unauthorized audit-log modification.
-- Validation of file uploads.
-- Protection against unauthorized document downloads.
+### F. Modern React Frontend
+- [x] Built with React 18, Vite, React Router v6, Axios, and clean CSS styling.
+- [x] Login and Registration screens with validation.
+- [x] Dashboard with quick stats (documents, categories, shares) and recent activity.
+- [x] "My Documents" with live search, category filtering, upload modal, inline actions (edit, share, manage permissions, view versions, view audit log, delete).
+- [x] "Shared With Me" enforcing granular permission-based actions.
+- [x] "Shared By Me" with live collaborator management and permission toggles.
+- [x] Administrator Audit Trail page with filters and pagination.
+- [x] User Profile page with role badge and secure sign out.
 
-## 6. Development Rules
+---
 
-1. Implement one module at a time.
-2. Test each feature before moving forward.
-3. Never claim an incomplete feature as completed.
-4. Record important architecture and security decisions.
-5. Maintain meaningful Git commits.
-6. Never commit passwords, tokens, or private documents.
-7. Understand every implemented feature before submission.
+## 4. Test Verification Summary
 
-## 7. Latest Development Position
-
-**Current Phase:** Initial project setup.
-
-**Last Completed Task:** Created the initial documentation and project structure.
-
-**Next Task:** Verify Java and Maven environment, then prepare the GitHub repository.
-
-**Last Updated:** 1 November 2026.
-
+- Context load test: **Passed**
+- Integration test suite (6 end-to-end tests): **Passed**
+- Overall test execution: **7 tests, 0 failures, 0 errors, 0 skipped**

@@ -1,4 +1,3 @@
-
 package com.snovasys.trustvault.document.entity;
 
 import com.snovasys.trustvault.user.entity.AppUser;
@@ -24,6 +23,12 @@ public class Document {
 
     @Column(columnDefinition = "text")
     private String description;
+
+    @Column(length = 100)
+    private String category;
+
+    @Column(length = 255)
+    private String tags;
 
     @Column(name = "content_type", nullable = false, length = 150)
     private String contentType;
@@ -95,6 +100,22 @@ public class Document {
         this.description = description;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     public String getContentType() {
         return contentType;
     }
@@ -149,6 +170,10 @@ public class Document {
 
     public OffsetDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public OffsetDateTime getDeletedAt() {

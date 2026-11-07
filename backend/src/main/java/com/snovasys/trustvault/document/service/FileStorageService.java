@@ -1,4 +1,3 @@
-
 package com.snovasys.trustvault.document.service;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -77,6 +76,14 @@ public class FileStorageService {
             Files.deleteIfExists(destination);
             throw exception;
         }
+    }
+
+    public String duplicate(String sourceStorageKey) throws IOException {
+        Path sourcePath = load(sourceStorageKey);
+        String newStorageKey = UUID.randomUUID().toString();
+        Path destination = resolveStoragePath(newStorageKey);
+        Files.copy(sourcePath, destination, StandardCopyOption.REPLACE_EXISTING);
+        return newStorageKey;
     }
 
     private String calculateChecksum(Path filePath)
