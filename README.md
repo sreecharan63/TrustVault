@@ -21,7 +21,7 @@ To test all permission boundaries, cross-tenant isolation, and administrative co
 
 | Role | Email Address | Password | Permissions & Intended Test Workflow |
 |---|---|---|---|
-| **Administrator** | `test.admin@example.com` | `Password123!` | System officer. Can inspect the global immutable audit trail (`/admin/audit`), review file access requests (`/requests`), and fulfill requests by attaching and sharing files. |
+| **Administrator** | `test.admin@example.com` | `Password123!` | System officer with full rights to control all documents, permissions, and audit logs. Can view, download, edit, share, and delete any document across the platform, inspect the global immutable audit trail (`/admin/audit`), review file access requests (`/requests`), and fulfill requests. |
 | **Document Owner** | `test.user.a@example.com` | `Password123!` | Document owner. Can upload files, create new versions, grant/revoke permissions to named users, and view document-level activity. |
 | **Viewer** | `test.user.b@example.com` | `Password123!` | Recipient. Can view and download shared files under **Shared With Me**, request unshared files from Admin, and cannot edit/delete files without explicit grants. |
 
@@ -51,6 +51,8 @@ To test all permission boundaries, cross-tenant isolation, and administrative co
 ```
                       ┌────────────────────────────────────────┐
                       │              ADMINISTRATOR             │
+                      │ • Full Rights to Control All Documents │
+                      │ • View, Download, Edit, Share, Delete  │
                       │ • Global Audit Trail Inspection        │
                       │ • Access Request Queue & Fulfillment   │
                       └──────────────────┬─────────────────────┘
@@ -83,13 +85,14 @@ cd backend
 ```
 
 ### Verified Test Scenarios:
-1. **`SecurityAttackTests`** (6 Attack Scenarios):
+1. **`SecurityAttackTests`** (7 Attack & Role Scenarios — All Passing):
    - `testCrossTenantDirectObjectReferenceDeniedAndAudited`: Attacker fails to download Victim's UUID directly; attempt logged as `DENIED`.
    - `testReadOnlyUserCannotEditDocument`: Viewer with read-only cannot edit or upload new versions (HTTP 403).
    - `testImmediateRevocationCutsOffAccess`: Immediate cutoff verified within milliseconds of owner revocation.
    - `testAuditTrailImmutabilityTriggerPreventsModifications`: SQL `UPDATE` and `DELETE` on `audit_logs` rejected by database trigger.
    - `testUnauthenticatedAccessRejected`: Missing Bearer token yields HTTP 401.
    - `testViewerCannotUploadDocuments`: User registered as `VIEWER` is strictly blocked from uploading documents (HTTP 403).
+   - `testAdminHasFullSupervisoryRightsToAnyDocument`: Proves `ADMIN` has full rights to view, download, edit, share, and delete any document across the platform.
 2. **`TrustvaultIntegrationTests`** (7 Lifecycle Scenarios):
    - Auth flow, SHA-256 upload, sharing lifecycle, version restore, soft deletion, and admin role filtering.
 

@@ -179,14 +179,14 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
                 />
                 Can Edit (modify document)
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: canRead ? 'not-allowed' : 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: canRead ? 'default' : 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={canDownload || canRead}
                   disabled={canRead}
                   onChange={e => setCanDownload(e.target.checked)}
                 />
-                Can Download {canRead && <span className="text-muted">(included with Read)</span>}
+                <span>Can Download {canRead && <span className="text-muted text-sm">(included with Read)</span>}</span>
               </label>
             </div>
           </div>

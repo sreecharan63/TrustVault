@@ -250,4 +250,48 @@ public class SecurityAttackTests {
                         .header("Authorization", viewerToken))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    @DisplayName("ROLE VERIFICATION: Admin has full rights to control and manage all documents across the platform")
+    void testAdminHasFullSupervisoryRightsToAnyDocument() throws Exception {
+        // Victim uploads a file
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "victim-contract.pdf", "application/pdf", "Secret Contract".getBytes()
+        );
+        String uploadRes = mockMvc.perform(multipart("/api/documents/upload")
+                        .file(file)
+                        .param("title", "Victim Contract")
+                        .param("category", "Legal")
+                        .header("Authorization", victimToken))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String docId = (String) objectMapper.readValue(uploadRes, Map.class).get("id");
+
+        // Admin can download victim's document directly without prior permission grant
+        mockMvc.perform(get("/api/documents/" + docId + "/download")
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk());
+
+        // Admin can edit victim's document metadata
+        mockMvc.perform(multipart(HttpMethod.PUT, "/api/documents/" + docId)
+                        .param("description", "Admin Reviewed and Approved")
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk());
+
+        // Admin can share victim's document with another user
+        DocumentShareRequest shareReq = new DocumentShareRequest(
+                attackerEmail, true, false, true
+        );
+        mockMvc.perform(post("/api/documents/" + docId + "/share")
+                        .header("Authorization", adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shareReq)))
+                .andExpect(status().isCreated());
+
+        // Admin can delete victim's document
+        mockMvc.perform(delete("/api/documents/" + docId)
+                        .header("Authorization", adminToken))
+                .andExpect(status().isNoContent());
+    }
 }

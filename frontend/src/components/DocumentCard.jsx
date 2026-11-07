@@ -43,9 +43,10 @@ export default function DocumentCard({ doc, actions }) {
         ))}
       </div>
 
-      {doc.ownerEmail && !doc.isOwner && (
+      {doc.ownerEmail && (
         <div className="text-muted text-sm">
           Owner: {doc.ownerName || doc.ownerEmail}
+          {doc.isOwner && <span className="badge badge-neutral" style={{ marginLeft: '0.4rem', fontSize: '0.75rem' }}>You</span>}
           <span style={{ marginLeft: '0.75rem', display: 'inline-flex', gap: '0.35rem' }}>
             {doc.canRead && <span className="badge badge-success">Read</span>}
             {doc.canEdit && <span className="badge badge-warning">Edit</span>}

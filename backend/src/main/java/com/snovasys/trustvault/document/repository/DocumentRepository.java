@@ -41,9 +41,22 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
             DocumentStatus status
     );
 
+    List<Document> findAllByStatusOrderByCreatedAtDesc(
+            DocumentStatus status
+    );
+
+    long countByStatus(
+            DocumentStatus status
+    );
+
     @Query("SELECT DISTINCT d.category FROM Document d WHERE d.owner.id = :ownerId AND d.status = :status AND d.category IS NOT NULL AND d.category <> ''")
     List<String> findDistinctCategoriesByOwner(
             @Param("ownerId") UUID ownerId,
+            @Param("status") DocumentStatus status
+    );
+
+    @Query("SELECT DISTINCT d.category FROM Document d WHERE d.status = :status AND d.category IS NOT NULL AND d.category <> ''")
+    List<String> findDistinctCategoriesByStatus(
             @Param("status") DocumentStatus status
     );
 }

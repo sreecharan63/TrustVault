@@ -10,7 +10,7 @@ import VersionHistoryModal from '../components/VersionHistoryModal.jsx'
 import ActivityModal from '../components/ActivityModal.jsx'
 
 export default function MyDocumentsPage() {
-  const { user } = useAuth()
+  const { user, isAdmin } = useAuth()
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -73,7 +73,16 @@ export default function MyDocumentsPage() {
   return (
     <div className="page">
       <div className="flex-between mb-2">
-        <h1 className="page-title" style={{ margin: 0 }}>My Documents</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <h1 className="page-title" style={{ margin: 0 }}>
+            {isAdmin ? 'Document Vault (All Documents)' : 'My Documents'}
+          </h1>
+          {isAdmin && (
+            <span className="badge badge-primary" style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}>
+              Full Admin Control
+            </span>
+          )}
+        </div>
         {!isViewer && (
           <button className="btn btn-primary" onClick={() => setShowUpload(true)}>📤 Upload</button>
         )}

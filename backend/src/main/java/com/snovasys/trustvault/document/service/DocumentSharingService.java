@@ -136,29 +136,25 @@ public class DocumentSharingService {
             canRead = true;
         }
 
-        // Verify document ownership.
-        Document document = documentRepository
-                .findByIdAndOwner_IdAndStatus(
-                        documentId,
-                        owner.getId(),
-                        DocumentStatus.ACTIVE
-                )
-                .orElseThrow(() -> {
-
-                    recordDenied(
-                            owner,
-                            "PERMISSION_GRANT",
-                            documentId,
-                            "DOCUMENT_NOT_OWNED_OR_NOT_ACTIVE",
-                            ipAddress,
-                            userAgent
-                    );
-
-                    return new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Document not found"
-                    );
-                });
+        // Verify document ownership or ADMIN supervisory rights.
+        Document document = (owner.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN)
+                ? documentRepository.findByIdAndStatus(documentId, DocumentStatus.ACTIVE)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"))
+                : documentRepository.findByIdAndOwner_IdAndStatus(documentId, owner.getId(), DocumentStatus.ACTIVE)
+                        .orElseThrow(() -> {
+                            recordDenied(
+                                    owner,
+                                    "PERMISSION_GRANT",
+                                    documentId,
+                                    "DOCUMENT_NOT_OWNED_OR_NOT_ACTIVE",
+                                    ipAddress,
+                                    userAgent
+                            );
+                            return new ResponseStatusException(
+                                    HttpStatus.NOT_FOUND,
+                                    "Document not found"
+                            );
+                        });
 
         // Find the registered recipient.
         AppUser recipient = userRepository.findByEmail(
@@ -306,27 +302,25 @@ public class DocumentSharingService {
                 )
         );
 
-        // Verify document ownership.
-        Document document = documentRepository
-                .findByIdAndOwner_IdAndStatus(
-                        documentId,
-                        owner.getId(),
-                        DocumentStatus.ACTIVE
-                )
-                .orElseThrow(() -> {
-                    recordDenied(
-                            owner,
-                            "PERMISSION_UPDATE",
-                            documentId,
-                            "DOCUMENT_NOT_OWNED_OR_NOT_ACTIVE",
-                            ipAddress,
-                            userAgent
-                    );
-                    return new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Document not found"
-                    );
-                });
+        // Verify document ownership or ADMIN supervisory rights.
+        Document document = (owner.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN)
+                ? documentRepository.findByIdAndStatus(documentId, DocumentStatus.ACTIVE)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"))
+                : documentRepository.findByIdAndOwner_IdAndStatus(documentId, owner.getId(), DocumentStatus.ACTIVE)
+                        .orElseThrow(() -> {
+                            recordDenied(
+                                    owner,
+                                    "PERMISSION_UPDATE",
+                                    documentId,
+                                    "DOCUMENT_NOT_OWNED_OR_NOT_ACTIVE",
+                                    ipAddress,
+                                    userAgent
+                            );
+                            return new ResponseStatusException(
+                                    HttpStatus.NOT_FOUND,
+                                    "Document not found"
+                            );
+                        });
 
         if (recipientEmail == null || recipientEmail.isBlank()) {
             recordDenied(
@@ -457,27 +451,30 @@ public class DocumentSharingService {
                 )
         );
 
-        // Verify document ownership.
-        documentRepository.findByIdAndOwner_IdAndStatus(
-                documentId,
-                owner.getId(),
-                DocumentStatus.ACTIVE
-        ).orElseThrow(() -> {
-
-            recordDenied(
-                    owner,
-                    "PERMISSION_REVOKE",
+        // Verify document ownership or ADMIN supervisory rights.
+        if (owner.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN) {
+            documentRepository.findByIdAndStatus(documentId, DocumentStatus.ACTIVE)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+        } else {
+            documentRepository.findByIdAndOwner_IdAndStatus(
                     documentId,
-                    "DOCUMENT_NOT_OWNED_OR_NOT_ACTIVE",
-                    ipAddress,
-                    userAgent
-            );
-
-            return new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Document not found"
-            );
-        });
+                    owner.getId(),
+                    DocumentStatus.ACTIVE
+            ).orElseThrow(() -> {
+                recordDenied(
+                        owner,
+                        "PERMISSION_REVOKE",
+                        documentId,
+                        "DOCUMENT_NOT_OWNED_OR_NOT_ACTIVE",
+                        ipAddress,
+                        userAgent
+                );
+                return new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Document not found"
+                );
+            });
+        }
 
         if (recipientEmail == null || recipientEmail.isBlank()) {
 
@@ -570,14 +567,19 @@ public class DocumentSharingService {
                 )
         );
 
-        documentRepository.findByIdAndOwner_IdAndStatus(
-                documentId,
-                owner.getId(),
-                DocumentStatus.ACTIVE
-        ).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Document not found"
-        ));
+        if (owner.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN) {
+            documentRepository.findByIdAndStatus(documentId, DocumentStatus.ACTIVE)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+        } else {
+            documentRepository.findByIdAndOwner_IdAndStatus(
+                    documentId,
+                    owner.getId(),
+                    DocumentStatus.ACTIVE
+            ).orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Document not found"
+            ));
+        }
 
         List<DocumentPermission> permissions =
                 permissionRepository.findAllByDocument_IdAndRevokedAtIsNull(documentId);

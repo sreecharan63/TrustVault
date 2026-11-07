@@ -264,8 +264,10 @@ public class DocumentService {
                 )
         );
 
-        List<Document> documents =
-                documentRepository.findAllByOwner_IdAndStatusOrderByCreatedAtDesc(
+        boolean isAdmin = user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN;
+        List<Document> documents = isAdmin
+                ? documentRepository.findAllByStatusOrderByCreatedAtDesc(DocumentStatus.ACTIVE)
+                : documentRepository.findAllByOwner_IdAndStatusOrderByCreatedAtDesc(
                         user.getId(),
                         DocumentStatus.ACTIVE
                 );
@@ -286,7 +288,10 @@ public class DocumentService {
                     }
                     return true;
                 })
-                .map(doc -> toResponse(doc, true, true, true, true))
+                .map(doc -> {
+                    boolean isOwner = doc.getOwner().getId().equals(user.getId());
+                    return toResponse(doc, isOwner || isAdmin, true, isOwner || isAdmin, true);
+                })
                 .toList();
     }
 
@@ -388,56 +393,61 @@ public class DocumentService {
                 )
         );
 
-        Optional<Document> ownedDocument =
-                documentRepository.findByIdAndOwner_IdAndStatus(
-                        documentId,
-                        user.getId(),
-                        DocumentStatus.ACTIVE
-                );
-
         Document document;
 
-        if (ownedDocument.isPresent()) {
-            document = ownedDocument.get();
+        if (user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN) {
+            document = documentRepository.findByIdAndStatus(documentId, DocumentStatus.ACTIVE)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
         } else {
-            Optional<DocumentPermission> activePermission =
-                    permissionRepository
-                            .findByDocument_IdAndGrantee_IdAndRevokedAtIsNull(
-                                    documentId,
-                                    user.getId()
-                            );
+            Optional<Document> ownedDocument =
+                    documentRepository.findByIdAndOwner_IdAndStatus(
+                            documentId,
+                            user.getId(),
+                            DocumentStatus.ACTIVE
+                    );
 
-            if (activePermission.isEmpty()) {
-                recordDenied(
-                        user, "DOCUMENT_DOWNLOAD", documentId, "NO_ACTIVE_PERMISSION", ipAddress, userAgent
-                );
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Document not found"
-                );
-            }
+            if (ownedDocument.isPresent()) {
+                document = ownedDocument.get();
+            } else {
+                Optional<DocumentPermission> activePermission =
+                        permissionRepository
+                                .findByDocument_IdAndGrantee_IdAndRevokedAtIsNull(
+                                        documentId,
+                                        user.getId()
+                                );
 
-            DocumentPermission permission = activePermission.get();
-            document = permission.getDocument();
+                if (activePermission.isEmpty()) {
+                    recordDenied(
+                            user, "DOCUMENT_DOWNLOAD", documentId, "NO_ACTIVE_PERMISSION", ipAddress, userAgent
+                    );
+                    throw new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Document not found"
+                    );
+                }
 
-            if (document.getStatus() != DocumentStatus.ACTIVE) {
-                recordDenied(
-                        user, "DOCUMENT_DOWNLOAD", documentId, "DOCUMENT_NOT_ACTIVE", ipAddress, userAgent
-                );
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Document not found"
-                );
-            }
+                DocumentPermission permission = activePermission.get();
+                document = permission.getDocument();
 
-            if (!permission.isCanDownload()) {
-                recordDenied(
-                        user, "DOCUMENT_DOWNLOAD", documentId, "DOWNLOAD_NOT_ALLOWED", ipAddress, userAgent
-                );
-                throw new ResponseStatusException(
-                        HttpStatus.FORBIDDEN,
-                        "You do not have permission to download this document"
-                );
+                if (document.getStatus() != DocumentStatus.ACTIVE) {
+                    recordDenied(
+                            user, "DOCUMENT_DOWNLOAD", documentId, "DOCUMENT_NOT_ACTIVE", ipAddress, userAgent
+                    );
+                    throw new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Document not found"
+                    );
+                }
+
+                if (!permission.isCanDownload()) {
+                    recordDenied(
+                            user, "DOCUMENT_DOWNLOAD", documentId, "DOWNLOAD_NOT_ALLOWED", ipAddress, userAgent
+                    );
+                    throw new ResponseStatusException(
+                            HttpStatus.FORBIDDEN,
+                            "You do not have permission to download this document"
+                    );
+                }
             }
         }
 
@@ -483,41 +493,46 @@ public class DocumentService {
                 )
         );
 
-        Optional<Document> ownedDocument =
-                documentRepository.findByIdAndOwner_IdAndStatus(
-                        documentId,
-                        user.getId(),
-                        DocumentStatus.ACTIVE
-                );
-
         Document document;
 
-        if (ownedDocument.isPresent()) {
-            document = ownedDocument.get();
+        if (user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN) {
+            document = documentRepository.findByIdAndStatus(documentId, DocumentStatus.ACTIVE)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
         } else {
-            Optional<DocumentPermission> activePermission =
-                    permissionRepository
-                            .findByDocument_IdAndGrantee_IdAndRevokedAtIsNull(
-                                    documentId,
-                                    user.getId()
-                            );
+            Optional<Document> ownedDocument =
+                    documentRepository.findByIdAndOwner_IdAndStatus(
+                            documentId,
+                            user.getId(),
+                            DocumentStatus.ACTIVE
+                    );
 
-            if (activePermission.isEmpty() || !activePermission.get().isCanRead()) {
-                recordDenied(
-                        user, "DOCUMENT_PREVIEW", documentId, "NO_READ_PERMISSION", ipAddress, userAgent
-                );
-                throw new ResponseStatusException(
-                        HttpStatus.FORBIDDEN,
-                        "You do not have permission to preview this document"
-                );
-            }
+            if (ownedDocument.isPresent()) {
+                document = ownedDocument.get();
+            } else {
+                Optional<DocumentPermission> activePermission =
+                        permissionRepository
+                                .findByDocument_IdAndGrantee_IdAndRevokedAtIsNull(
+                                        documentId,
+                                        user.getId()
+                                );
 
-            document = activePermission.get().getDocument();
-            if (document.getStatus() != DocumentStatus.ACTIVE) {
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Document not found"
-                );
+                if (activePermission.isEmpty() || !activePermission.get().isCanRead()) {
+                    recordDenied(
+                            user, "DOCUMENT_PREVIEW", documentId, "NO_READ_PERMISSION", ipAddress, userAgent
+                    );
+                    throw new ResponseStatusException(
+                            HttpStatus.FORBIDDEN,
+                            "You do not have permission to preview this document"
+                    );
+                }
+
+                document = activePermission.get().getDocument();
+                if (document.getStatus() != DocumentStatus.ACTIVE) {
+                    throw new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Document not found"
+                    );
+                }
             }
         }
 
@@ -557,9 +572,10 @@ public class DocumentService {
                 });
 
         boolean isOwner = document.getOwner().getId().equals(user.getId());
-        boolean canEdit = isOwner;
+        boolean isAdmin = user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN;
+        boolean canEdit = isOwner || isAdmin;
 
-        if (!isOwner) {
+        if (!isOwner && !isAdmin) {
             Optional<DocumentPermission> permissionOpt = permissionRepository
                     .findByDocument_IdAndGrantee_IdAndRevokedAtIsNull(documentId, user.getId());
             canEdit = permissionOpt.isPresent() && permissionOpt.get().isCanEdit();
@@ -660,7 +676,7 @@ public class DocumentService {
                 )
         );
 
-        return toResponse(updatedDocument, isOwner, true, canEdit, isOwner);
+        return toResponse(updatedDocument, isOwner || isAdmin, true, canEdit, isOwner || isAdmin);
     }
 
     @Transactional
@@ -685,9 +701,12 @@ public class DocumentService {
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
                 });
 
-        if (!document.getOwner().getId().equals(user.getId())) {
+        boolean isOwner = document.getOwner().getId().equals(user.getId());
+        boolean isAdmin = user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
             recordDenied(user, "DOCUMENT_DELETE", documentId, "NOT_DOCUMENT_OWNER", ipAddress, userAgent);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only document owners can delete documents");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only document owners or administrators can delete documents");
         }
 
         document.setStatus(DocumentStatus.DELETED);
@@ -728,9 +747,10 @@ public class DocumentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
         boolean isOwner = document.getOwner().getId().equals(user.getId());
-        boolean canRead = isOwner;
+        boolean isAdmin = user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN;
+        boolean canRead = isOwner || isAdmin;
 
-        if (!isOwner) {
+        if (!isOwner && !isAdmin) {
             Optional<DocumentPermission> permissionOpt = permissionRepository
                     .findByDocument_IdAndGrantee_IdAndRevokedAtIsNull(documentId, user.getId());
             canRead = permissionOpt.isPresent() && permissionOpt.get().isCanRead();
@@ -784,9 +804,10 @@ public class DocumentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
         boolean isOwner = document.getOwner().getId().equals(user.getId());
-        boolean canDownload = isOwner;
+        boolean isAdmin = user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN;
+        boolean canDownload = isOwner || isAdmin;
 
-        if (!isOwner) {
+        if (!isOwner && !isAdmin) {
             Optional<DocumentPermission> permissionOpt = permissionRepository
                     .findByDocument_IdAndGrantee_IdAndRevokedAtIsNull(documentId, user.getId());
             canDownload = permissionOpt.isPresent() && permissionOpt.get().isCanDownload();
@@ -849,9 +870,10 @@ public class DocumentService {
                 });
 
         boolean isOwner = document.getOwner().getId().equals(user.getId());
-        boolean canEdit = isOwner;
+        boolean isAdmin = user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN;
+        boolean canEdit = isOwner || isAdmin;
 
-        if (!isOwner) {
+        if (!isOwner && !isAdmin) {
             Optional<DocumentPermission> permissionOpt = permissionRepository
                     .findByDocument_IdAndGrantee_IdAndRevokedAtIsNull(documentId, user.getId());
             canEdit = permissionOpt.isPresent() && permissionOpt.get().isCanEdit();
@@ -929,7 +951,7 @@ public class DocumentService {
                 )
         );
 
-        return toResponse(savedDoc, isOwner, true, canEdit, isOwner);
+        return toResponse(savedDoc, isOwner || isAdmin, true, canEdit, isOwner || isAdmin);
     }
 
     @Transactional(readOnly = true)
@@ -946,8 +968,11 @@ public class DocumentService {
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
-        if (!document.getOwner().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the document owner can view activity history");
+        boolean isOwner = document.getOwner().getId().equals(user.getId());
+        boolean isAdmin = user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the document owner or an administrator can view activity history");
         }
 
         List<AuditLog> logs = auditLogRepository.findAllByResourceIdOrderByCreatedAtDesc(documentId);
@@ -965,7 +990,10 @@ public class DocumentService {
                 )
         );
 
-        long myDocumentsCount = documentRepository.countByOwner_IdAndStatus(user.getId(), DocumentStatus.ACTIVE);
+        boolean isAdmin = user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN;
+        long myDocumentsCount = isAdmin
+                ? documentRepository.countByStatus(DocumentStatus.ACTIVE)
+                : documentRepository.countByOwner_IdAndStatus(user.getId(), DocumentStatus.ACTIVE);
 
         List<DocumentPermission> sharedWithMe = permissionRepository.findAllByGrantee_IdAndRevokedAtIsNull(user.getId());
         long sharedWithMeCount = sharedWithMe.stream()
@@ -980,7 +1008,9 @@ public class DocumentService {
                 .count();
 
         List<DocumentResponse> recentDocs = getMyDocuments(email, null, null).stream().limit(5).toList();
-        List<String> categories = documentRepository.findDistinctCategoriesByOwner(user.getId(), DocumentStatus.ACTIVE);
+        List<String> categories = isAdmin
+                ? documentRepository.findDistinctCategoriesByStatus(DocumentStatus.ACTIVE)
+                : documentRepository.findDistinctCategoriesByOwner(user.getId(), DocumentStatus.ACTIVE);
 
         return Map.of(
                 "totalDocuments", myDocumentsCount,
