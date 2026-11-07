@@ -16,7 +16,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (password !== confirm) { setError('Passwords do not match.'); return }
-    if (password.length < 8) { setError('Password must be at least 8 characters.'); return }
+    if (password.length < 12) { setError('Password must be at least 12 characters.'); return }
     setLoading(true); setError('')
     try {
       const res = await registerApi(fullName, email, password)
@@ -27,7 +27,11 @@ export default function RegisterPage() {
       login(accessToken, meRes.data)
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.error || 'Registration failed.')
+      const msg = err.response?.data?.message ||
+                  err.response?.data?.errors?.[0]?.defaultMessage ||
+                  err.response?.data?.error ||
+                  'Registration failed.'
+      setError(msg)
     } finally {
       setLoading(false)
     }
@@ -55,7 +59,7 @@ export default function RegisterPage() {
           </div>
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 characters" required />
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 12 characters" required />
           </div>
           <div className="form-group">
             <label className="form-label">Confirm Password</label>
