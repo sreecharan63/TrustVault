@@ -83,12 +83,13 @@ cd backend
 ```
 
 ### Verified Test Scenarios:
-1. **`SecurityAttackTests`** (5 Attack Scenarios):
+1. **`SecurityAttackTests`** (6 Attack Scenarios):
    - `testCrossTenantDirectObjectReferenceDeniedAndAudited`: Attacker fails to download Victim's UUID directly; attempt logged as `DENIED`.
    - `testReadOnlyUserCannotEditDocument`: Viewer with read-only cannot edit or upload new versions (HTTP 403).
    - `testImmediateRevocationCutsOffAccess`: Immediate cutoff verified within milliseconds of owner revocation.
    - `testAuditTrailImmutabilityTriggerPreventsModifications`: SQL `UPDATE` and `DELETE` on `audit_logs` rejected by database trigger.
    - `testUnauthenticatedAccessRejected`: Missing Bearer token yields HTTP 401.
+   - `testViewerCannotUploadDocuments`: User registered as `VIEWER` is strictly blocked from uploading documents (HTTP 403).
 2. **`TrustvaultIntegrationTests`** (7 Lifecycle Scenarios):
    - Auth flow, SHA-256 upload, sharing lifecycle, version restore, soft deletion, and admin role filtering.
 
@@ -114,7 +115,7 @@ cd backend
 ### 2. Backend Setup
 ```bash
 cd backend
-# Run Spring Boot (Flyway automatically runs migrations V1 through V5)
+# Run Spring Boot (Flyway automatically runs migrations V1 through V7)
 ./mvnw spring-boot:run
 ```
 

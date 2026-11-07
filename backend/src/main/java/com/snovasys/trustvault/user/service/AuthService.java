@@ -69,7 +69,16 @@ public class AuthService {
         user.setPasswordHash(
                 passwordEncoder.encode(request.password())
         );
-        user.setRole(Role.USER);
+        Role assignedRole = Role.DOCUMENT_OWNER;
+        if (request.role() != null && !request.role().isBlank()) {
+            String requested = request.role().trim().toUpperCase();
+            if ("VIEWER".equals(requested)) {
+                assignedRole = Role.VIEWER;
+            } else if ("ADMIN".equals(requested)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin role cannot be self-assigned during registration");
+            }
+        }
+        user.setRole(assignedRole);
         user.setEnabled(true);
 
         userRepository.save(user);

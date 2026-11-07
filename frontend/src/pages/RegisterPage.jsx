@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const [role, setRole] = useState('DOCUMENT_OWNER')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -19,7 +20,7 @@ export default function RegisterPage() {
     if (password.length < 12) { setError('Password must be at least 12 characters.'); return }
     setLoading(true); setError('')
     try {
-      const res = await registerApi(fullName, email, password)
+      const res = await registerApi(fullName, email, password, role)
       const { accessToken } = res.data
       localStorage.setItem('trustvault_token', accessToken)
 
@@ -56,6 +57,13 @@ export default function RegisterPage() {
           <div className="form-group">
             <label className="form-label">Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Account Role</label>
+            <select value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: 'var(--radius)', background: 'var(--bg3)', color: 'var(--text)', border: '1px solid var(--border)' }}>
+              <option value="DOCUMENT_OWNER">Document Owner (Upload, Version, Share & Manage)</option>
+              <option value="VIEWER">Viewer (View & Download Shared Files, Request Files)</option>
+            </select>
           </div>
           <div className="form-group">
             <label className="form-label">Password</label>

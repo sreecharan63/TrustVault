@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '../contexts/AuthContext.jsx'
 import { getMyDocuments, downloadDocument, deleteDocument } from '../api/documents.js'
 import DocumentCard from '../components/DocumentCard.jsx'
 import UploadModal from '../components/UploadModal.jsx'
@@ -9,6 +10,7 @@ import VersionHistoryModal from '../components/VersionHistoryModal.jsx'
 import ActivityModal from '../components/ActivityModal.jsx'
 
 export default function MyDocumentsPage() {
+  const { user } = useAuth()
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -66,13 +68,30 @@ export default function MyDocumentsPage() {
   }
 
   const categories = [...new Set(docs.map(d => d.category).filter(Boolean))]
+  const isViewer = user?.role === 'VIEWER'
 
   return (
     <div className="page">
       <div className="flex-between mb-2">
         <h1 className="page-title" style={{ margin: 0 }}>My Documents</h1>
-        <button className="btn btn-primary" onClick={() => setShowUpload(true)}>📤 Upload</button>
+        {!isViewer && (
+          <button className="btn btn-primary" onClick={() => setShowUpload(true)}>📤 Upload</button>
+        )}
       </div>
+
+      {isViewer && (
+        <div style={{
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          borderRadius: '8px',
+          padding: '0.85rem 1.25rem',
+          marginBottom: '1.25rem',
+          color: '#93c5fd',
+          fontSize: '0.9rem'
+        }}>
+          ℹ️ <strong>Logged in as Viewer:</strong> You have read-only privileges. Check <em>"Shared With Me"</em> in the navigation bar to access documents granted to you. Document uploading is reserved for <strong>Document Owners</strong>.
+        </div>
+      )}
 
       <div className="search-bar">
         <input
@@ -91,7 +110,9 @@ export default function MyDocumentsPage() {
       {loading ? <div className="spinner" /> : docs.length === 0 ? (
         <div className="empty-state">
           <p>No documents found.</p>
-          <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => setShowUpload(true)}>📤 Upload your first document</button>
+          {!isViewer && (
+            <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => setShowUpload(true)}>📤 Upload your first document</button>
+          )}
         </div>
       ) : (
         <div className="grid-2">

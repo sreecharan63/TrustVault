@@ -232,4 +232,22 @@ public class SecurityAttackTests {
         mockMvc.perform(get("/api/admin/audit-logs"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @DisplayName("ATTACK 6: Role Enforcement - VIEWER cannot upload documents (Forbidden 403)")
+    void testViewerCannotUploadDocuments() throws Exception {
+        String viewerEmail = "viewer.test@example.com";
+        createOrUpdateUser(viewerEmail, "Viewer Test", Role.VIEWER);
+        String viewerToken = "Bearer " + jwtService.generateToken(viewerEmail);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "unauthorized-doc.pdf", "application/pdf", "Viewer File Content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/documents/upload")
+                        .file(file)
+                        .param("title", "Unauthorized Upload")
+                        .header("Authorization", viewerToken))
+                .andExpect(status().isForbidden());
+    }
 }

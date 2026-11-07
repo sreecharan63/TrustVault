@@ -1,4 +1,3 @@
-
 package com.snovasys.trustvault.user.dto;
 
 import jakarta.validation.constraints.Email;
@@ -19,7 +18,12 @@ public record RegisterRequest(
         @NotBlank(message = "Password is required")
         @Size(min = 12, max = 72,
                 message = "Password must contain 12 to 72 characters")
-        String password
+        String password,
+
+        String role
 
 ) {
+    public RegisterRequest(String fullName, String email, String password) {
+        this(fullName, email, password, "DOCUMENT_OWNER");
+    }
 }

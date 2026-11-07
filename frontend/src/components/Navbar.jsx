@@ -52,7 +52,9 @@ export default function Navbar() {
             {user.fullName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
           </div>
           <span style={{ fontSize: '0.875rem', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.fullName || user.email}</span>
-          {isAdmin && <span className="badge badge-admin">Admin</span>}
+          {user.role === 'ADMIN' && <span className="badge badge-admin">Admin</span>}
+          {(user.role === 'DOCUMENT_OWNER' || user.role === 'USER') && <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: 9999 }}>Owner</span>}
+          {user.role === 'VIEWER' && <span className="badge" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: 9999 }}>Viewer</span>}
         </Link>
         <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Logout</button>
       </div>

@@ -91,6 +91,14 @@ public class DocumentService {
                 )
         );
 
+        if (owner.getRole() == com.snovasys.trustvault.user.entity.Role.VIEWER) {
+            recordDenied(owner, "DOCUMENT_UPLOAD", null, "VIEWER_CANNOT_UPLOAD", ipAddress, userAgent);
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Viewers are not permitted to upload documents; requires Document Owner role"
+            );
+        }
+
         FileStorageService.StoredFile storedFile =
                 fileStorageService.store(file);
 
