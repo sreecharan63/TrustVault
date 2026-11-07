@@ -33,5 +33,9 @@ desktop.ini
 # Logs
 *.log
 
+# Database backups
+/database/backups/*.dump
+*.dump
+
 # Local project archives
 /trustvault.zip
