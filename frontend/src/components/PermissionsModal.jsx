@@ -37,12 +37,18 @@ export default function PermissionsModal({ doc, onClose, onRefresh }) {
 
   const handleToggle = async (perm, field) => {
     setActionLoading(perm.recipientEmail + field)
+    const newCanRead = field === 'canRead' ? !perm.canRead : perm.canRead
+    let newCanDownload = field === 'canDownload' ? !perm.canDownload : perm.canDownload
+    if (newCanRead) {
+      newCanDownload = true
+    }
+
     try {
       await updateSharing(doc.id, {
         recipientEmail: perm.recipientEmail,
-        canRead: field === 'canRead' ? !perm.canRead : perm.canRead,
+        canRead: newCanRead,
         canEdit: field === 'canEdit' ? !perm.canEdit : perm.canEdit,
-        canDownload: field === 'canDownload' ? !perm.canDownload : perm.canDownload
+        canDownload: newCanDownload
       })
       await fetchPermissions()
       if (onRefresh) onRefresh()

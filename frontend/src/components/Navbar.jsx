@@ -38,6 +38,7 @@ export default function Navbar() {
           <NavLink to="/documents" label="My Docs" location={location} />
           <NavLink to="/shared-with-me" label="Shared With Me" location={location} />
           <NavLink to="/shared-by-me" label="Shared By Me" location={location} />
+          <NavLink to="/requests" label="Requests" location={location} />
           {isAdmin && <NavLink to="/admin/audit" label="Audit Logs" location={location} />}
         </div>
       </div>

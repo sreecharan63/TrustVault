@@ -11,6 +11,7 @@ import SharedWithMePage from './pages/SharedWithMePage.jsx'
 import SharedByMePage from './pages/SharedByMePage.jsx'
 import AdminAuditPage from './pages/AdminAuditPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
+import RequestsPage from './pages/RequestsPage.jsx'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/documents" element={<ProtectedRoute><MyDocumentsPage /></ProtectedRoute>} />
           <Route path="/shared-with-me" element={<ProtectedRoute><SharedWithMePage /></ProtectedRoute>} />
           <Route path="/shared-by-me" element={<ProtectedRoute><SharedByMePage /></ProtectedRoute>} />
+          <Route path="/requests" element={<ProtectedRoute><RequestsPage /></ProtectedRoute>} />
           <Route path="/admin/audit" element={<AdminRoute><AdminAuditPage /></AdminRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />

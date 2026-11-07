@@ -163,9 +163,13 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
                 <input
                   type="checkbox"
                   checked={canRead}
-                  onChange={e => setCanRead(e.target.checked)}
+                  onChange={e => {
+                    const checked = e.target.checked
+                    setCanRead(checked)
+                    if (checked) setCanDownload(true)
+                  }}
                 />
-                Can Read (view document metadata)
+                Can Read (includes Download access)
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: 'pointer' }}>
                 <input
@@ -175,13 +179,14 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
                 />
                 Can Edit (modify document)
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: canRead ? 'not-allowed' : 'pointer' }}>
                 <input
                   type="checkbox"
-                  checked={canDownload}
+                  checked={canDownload || canRead}
+                  disabled={canRead}
                   onChange={e => setCanDownload(e.target.checked)}
                 />
-                Can Download (download file)
+                Can Download {canRead && <span className="text-muted">(included with Read)</span>}
               </label>
             </div>
           </div>

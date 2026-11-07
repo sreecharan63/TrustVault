@@ -121,7 +121,17 @@ public class DocumentSharingService {
             );
         }
 
+        // Read permission always includes download permission.
+        if (canRead) {
+            canDownload = true;
+        }
+
         // Edit or download permission requires read permission.
+        // Read permission always includes download permission.
+        if (canRead) {
+            canDownload = true;
+        }
+
         if ((canEdit || canDownload) && !canRead) {
             canRead = true;
         }
@@ -346,6 +356,11 @@ public class DocumentSharingService {
                     HttpStatus.BAD_REQUEST,
                     "At least one permission must be granted"
             );
+        }
+
+        // Read permission always includes download permission.
+        if (canRead) {
+            canDownload = true;
         }
 
         if ((canEdit || canDownload) && !canRead) {
