@@ -51,4 +51,13 @@ public class AuthController {
         UserProfileResponse response = authService.getProfile(authentication.getName());
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/users")
+    public ResponseEntity<java.util.List<UserProfileResponse>> getShareableUsers(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        java.util.List<UserProfileResponse> users = authService.getShareableUsers(authentication.getName());
+        return ResponseEntity.ok(users);
+    }
 }

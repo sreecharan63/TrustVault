@@ -111,4 +111,19 @@ public class AuthService {
                 user.getRole().name()
         );
     }
+
+    @Transactional(readOnly = true)
+    public java.util.List<UserProfileResponse> getShareableUsers(String currentEmail) {
+        String normalized = currentEmail != null ? currentEmail.trim().toLowerCase() : "";
+        return userRepository.findAll().stream()
+                .filter(u -> u.isEnabled() && !u.getEmail().equalsIgnoreCase(normalized))
+                .map(u -> new UserProfileResponse(
+                        u.getId(),
+                        u.getEmail(),
+                        u.getFullName(),
+                        u.getRole().name()
+                ))
+                .sorted((a, b) -> a.fullName().compareToIgnoreCase(b.fullName()))
+                .toList();
+    }
 }

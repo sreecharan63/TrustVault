@@ -8,3 +8,6 @@ export const register = (fullName, email, password) =>
 
 export const getMe = () =>
   apiClient.get('/api/auth/me')
+
+export const getShareableUsers = () =>
+  apiClient.get('/api/auth/users')
