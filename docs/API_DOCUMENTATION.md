@@ -250,3 +250,49 @@ This document describes the REST API endpoints provided by the TrustVault backen
   - `page`: Page index (default: `0`)
   - `size`: Page size (default: `20`, max: `100`)
 - **Response:** `200 OK` with `Page<AuditLogResponse>`
+
+
+---
+
+## 6. File Access Request Endpoints (`/api/requests`)
+
+### 6.1 Submit File Request
+- **Method:** `POST`
+- **Path:** `/api/requests`
+- **Access:** Authenticated (Any User)
+- **Request Body (JSON):**
+  ```json
+  {
+    "fileName": "Financial-Audit-2025.xlsx",
+    "accessSpecification": "READ",
+    "description": "Need to review Q4 expenditure metrics for financial audit compliance."
+  }
+  ```
+- **Response:** `201 Created` with `FileRequestResponse`
+- **Audit Event:** `FILE_REQUEST_SUBMIT`
+
+### 6.2 View My Submitted File Requests
+- **Method:** `GET`
+- **Path:** `/api/requests/my`
+- **Access:** Authenticated (Requester)
+- **Response:** `200 OK` (`List<FileRequestResponse>`)
+
+### 6.3 View All File Requests (Admin)
+- **Method:** `GET`
+- **Path:** `/api/requests`
+- **Access:** ADMIN role only
+- **Response:** `200 OK` (`List<FileRequestResponse>`)
+
+### 6.4 Resolve File Request (Admin)
+- **Method:** `PUT`
+- **Path:** `/api/requests/{id}/resolve`
+- **Access:** ADMIN role only
+- **Request Body (JSON):**
+  ```json
+  {
+    "status": "APPROVED",
+    "adminResponse": "Approved. Access has been provisioned."
+  }
+  ```
+- **Response:** `200 OK` with updated `FileRequestResponse`
+- **Audit Event:** `FILE_REQUEST_RESOLVE`
