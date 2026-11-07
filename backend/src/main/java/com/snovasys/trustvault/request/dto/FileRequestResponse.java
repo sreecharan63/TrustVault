@@ -15,6 +15,8 @@ public record FileRequestResponse(
         String status,
         String adminResponse,
         String resolvedByName,
+        UUID fulfilledDocumentId,
+        String fulfilledDocumentFilename,
         OffsetDateTime createdAt,
         OffsetDateTime resolvedAt
 ) {
@@ -30,6 +32,8 @@ public record FileRequestResponse(
                 request.getStatus(),
                 request.getAdminResponse(),
                 request.getResolvedBy() != null ? request.getResolvedBy().getFullName() : null,
+                request.getFulfilledDocument() != null ? request.getFulfilledDocument().getId() : null,
+                request.getFulfilledDocument() != null ? request.getFulfilledDocument().getOriginalFilename() : null,
                 request.getCreatedAt(),
                 request.getResolvedAt()
         );

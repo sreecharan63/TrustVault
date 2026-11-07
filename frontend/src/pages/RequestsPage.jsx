@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { getMyFileRequests, getAllFileRequests, resolveFileRequest } from '../api/requests.js'
+import { downloadDocument } from '../api/documents.js'
 import NewRequestModal from '../components/NewRequestModal.jsx'
 
 export default function RequestsPage() {
@@ -16,6 +17,7 @@ export default function RequestsPage() {
   const [resolvingRequest, setResolvingRequest] = useState(null)
   const [resolutionAction, setResolutionAction] = useState('APPROVED') // or REJECTED
   const [adminResponseNote, setAdminResponseNote] = useState('')
+  const [attachedFile, setAttachedFile] = useState(null)
 
   const fetchRequests = useCallback(async () => {
     setLoading(true)
@@ -38,6 +40,7 @@ export default function RequestsPage() {
     setResolvingRequest(req)
     setResolutionAction(action)
     setAdminResponseNote('')
+    setAttachedFile(null)
   }
 
   const handleConfirmResolve = async (e) => {
@@ -45,16 +48,38 @@ export default function RequestsPage() {
     if (!resolvingRequest) return
     setActionLoading(resolvingRequest.id)
     try {
-      await resolveFileRequest(resolvingRequest.id, {
-        status: resolutionAction,
-        adminResponse: adminResponseNote
-      })
+      if (resolutionAction === 'APPROVED' && attachedFile) {
+        const fd = new FormData()
+        fd.append('status', 'APPROVED')
+        fd.append('file', attachedFile)
+        if (adminResponseNote) fd.append('adminResponse', adminResponseNote)
+        await resolveFileRequest(resolvingRequest.id, fd)
+      } else {
+        await resolveFileRequest(resolvingRequest.id, {
+          status: resolutionAction,
+          adminResponse: adminResponseNote
+        })
+      }
       setResolvingRequest(null)
       fetchRequests()
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to update request.')
     } finally {
       setActionLoading(null)
+    }
+  }
+
+  const handleDownloadFulfilled = async (docId, filename) => {
+    try {
+      const res = await downloadDocument(docId)
+      const url = URL.createObjectURL(res.data)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename || 'requested-document'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to download fulfilled file.')
     }
   }
 
@@ -142,11 +167,11 @@ export default function RequestsPage() {
             <thead>
               <tr>
                 {isAdmin && <th>Requester</th>}
-                <th>File Name</th>
+                <th>File Requested</th>
                 <th>Access Level</th>
                 <th>Description / Reason</th>
                 <th>Status</th>
-                <th>Admin Response</th>
+                <th>Delivered File / Response</th>
                 <th>Submitted On</th>
                 {isAdmin && <th>Actions</th>}
               </tr>
@@ -168,7 +193,21 @@ export default function RequestsPage() {
                     <div style={{ wordBreak: 'break-word' }}>{req.description}</div>
                   </td>
                   <td>{getStatusBadge(req.status)}</td>
-                  <td style={{ maxWidth: 200 }}>
+                  <td style={{ maxWidth: 240 }}>
+                    {req.fulfilledDocumentId && (
+                      <div style={{ marginBottom: '0.4rem' }}>
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => handleDownloadFulfilled(req.fulfilledDocumentId, req.fulfilledDocumentFilename || req.fileName)}
+                          title="Download fulfilled file"
+                        >
+                          ⬇ Download File
+                        </button>
+                        <div className="text-muted" style={{ fontSize: '0.75rem', marginTop: '0.2rem' }}>
+                          📎 {req.fulfilledDocumentFilename || req.fileName}
+                        </div>
+                      </div>
+                    )}
                     {req.adminResponse ? (
                       <div>
                         <div>{req.adminResponse}</div>
@@ -177,7 +216,7 @@ export default function RequestsPage() {
                         )}
                       </div>
                     ) : (
-                      <span className="text-muted">—</span>
+                      !req.fulfilledDocumentId && <span className="text-muted">—</span>
                     )}
                   </td>
                   <td>{fmtDate(req.createdAt)}</td>
@@ -189,13 +228,15 @@ export default function RequestsPage() {
                             className="btn btn-sm btn-primary"
                             onClick={() => handleOpenResolve(req, 'APPROVED')}
                             disabled={actionLoading === req.id}
+                            title="Accept request and send the file"
                           >
-                            ✓ Approve
+                            ✓ Accept & Send File
                           </button>
                           <button
                             className="btn btn-sm btn-danger"
                             onClick={() => handleOpenResolve(req, 'REJECTED')}
                             disabled={actionLoading === req.id}
+                            title="Reject request"
                           >
                             ✕ Reject
                           </button>
@@ -223,32 +264,48 @@ export default function RequestsPage() {
         />
       )}
 
-      {/* Admin Resolution Modal */}
+      {/* Admin Resolution & File Delivery Modal */}
       {resolvingRequest && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setResolvingRequest(null)}>
           <div className="modal">
             <div className="modal-title">
-              {resolutionAction === 'APPROVED' ? '✅ Approve File Request' : '❌ Reject File Request'}
+              {resolutionAction === 'APPROVED' ? '✅ Accept Request & Send File' : '❌ Reject File Request'}
               <button className="btn btn-ghost btn-sm" onClick={() => setResolvingRequest(null)}>✕</button>
             </div>
 
             <p className="mb-1">
-              File: <strong>{resolvingRequest.fileName}</strong>
+              File Requested: <strong>{resolvingRequest.fileName}</strong>
             </p>
             <p className="text-muted mb-2">
-              Requester: {resolvingRequest.requesterName} ({resolvingRequest.requesterEmail})
+              Requester: <strong>{resolvingRequest.requesterName}</strong> ({resolvingRequest.requesterEmail}) — Access: <em>{resolvingRequest.accessSpecification}</em>
             </p>
 
             <form onSubmit={handleConfirmResolve}>
-              <div className="form-group">
+              {resolutionAction === 'APPROVED' && (
+                <div className="form-group" style={{ background: 'var(--bg3)', padding: '0.9rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+                  <label className="form-label" style={{ fontWeight: 600, color: 'var(--text)' }}>
+                    📎 Attach & Send File *
+                  </label>
+                  <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                    Upload the requested file. It will be stored securely and automatically shared with <strong>{resolvingRequest.requesterName}</strong> according to their requested access level.
+                  </p>
+                  <input
+                    type="file"
+                    onChange={e => setAttachedFile(e.target.files[0])}
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="form-group" style={{ marginTop: '0.75rem' }}>
                 <label className="form-label">
-                  {resolutionAction === 'APPROVED' ? 'Approval Note (Optional)' : 'Rejection Reason (Optional)'}
+                  {resolutionAction === 'APPROVED' ? 'Admin Message / Note (Optional)' : 'Rejection Reason (Optional)'}
                 </label>
                 <textarea
                   value={adminResponseNote}
                   onChange={e => setAdminResponseNote(e.target.value)}
-                  rows={3}
-                  placeholder={resolutionAction === 'APPROVED' ? 'e.g. Access granted. File is now available in your shared documents.' : 'e.g. Access denied due to compliance policy.'}
+                  rows={2}
+                  placeholder={resolutionAction === 'APPROVED' ? 'e.g. Here is the requested document. Access has been granted.' : 'e.g. Access denied due to compliance policy.'}
                 />
               </div>
 
@@ -259,7 +316,7 @@ export default function RequestsPage() {
                   className={`btn ${resolutionAction === 'APPROVED' ? 'btn-primary' : 'btn-danger'}`}
                   disabled={actionLoading === resolvingRequest.id}
                 >
-                  {resolutionAction === 'APPROVED' ? 'Confirm Approval' : 'Confirm Rejection'}
+                  {resolutionAction === 'APPROVED' ? '📤 Accept & Send File' : 'Confirm Rejection'}
                 </button>
               </div>
             </form>

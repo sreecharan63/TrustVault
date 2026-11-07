@@ -1,5 +1,6 @@
 package com.snovasys.trustvault.request.entity;
 
+import com.snovasys.trustvault.document.entity.Document;
 import com.snovasys.trustvault.user.entity.AppUser;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
@@ -35,6 +36,10 @@ public class FileRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resolved_by")
     private AppUser resolvedBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fulfilled_document_id")
+    private Document fulfilledDocument;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt = OffsetDateTime.now();
@@ -76,6 +81,9 @@ public class FileRequest {
 
     public AppUser getResolvedBy() { return resolvedBy; }
     public void setResolvedBy(AppUser resolvedBy) { this.resolvedBy = resolvedBy; }
+
+    public Document getFulfilledDocument() { return fulfilledDocument; }
+    public void setFulfilledDocument(Document fulfilledDocument) { this.fulfilledDocument = fulfilledDocument; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }

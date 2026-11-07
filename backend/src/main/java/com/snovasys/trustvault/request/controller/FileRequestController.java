@@ -8,12 +8,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,16 +62,43 @@ public class FileRequestController {
         return ResponseEntity.ok(responses);
     }
 
-    @PutMapping({"/{id}/resolve", "/{id}/resolve/"})
-    public ResponseEntity<FileRequestResponse> resolveRequest(
+    @PutMapping(value = {"/{id}/resolve", "/{id}/resolve/"}, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<FileRequestResponse> resolveRequestMultipart(
             @PathVariable UUID id,
-            @Valid @RequestBody ResolveFileRequest resolution,
+            @RequestParam("status") String status,
+            @RequestParam(value = "adminResponse", required = false) String adminResponse,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "existingDocumentId", required = false) UUID existingDocumentId,
             Authentication authentication,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws IOException {
 
         FileRequestResponse response = fileRequestService.resolveRequest(
                 id,
-                resolution,
+                status,
+                adminResponse,
+                file,
+                existingDocumentId,
+                authentication.getName(),
+                request.getRemoteAddr(),
+                request.getHeader(HttpHeaders.USER_AGENT)
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(value = {"/{id}/resolve", "/{id}/resolve/"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<FileRequestResponse> resolveRequestJson(
+            @PathVariable UUID id,
+            @Valid @RequestBody ResolveFileRequest resolution,
+            Authentication authentication,
+            HttpServletRequest request) throws IOException {
+
+        FileRequestResponse response = fileRequestService.resolveRequest(
+                id,
+                resolution.status(),
+                resolution.adminResponse(),
+                null,
+                null,
                 authentication.getName(),
                 request.getRemoteAddr(),
                 request.getHeader(HttpHeaders.USER_AGENT)

@@ -9,9 +9,9 @@ import java.util.UUID;
 
 public interface FileRequestRepository extends JpaRepository<FileRequest, UUID> {
 
-    @Query("SELECT r FROM FileRequest r JOIN FETCH r.requester LEFT JOIN FETCH r.resolvedBy ORDER BY r.createdAt DESC")
+    @Query("SELECT r FROM FileRequest r JOIN FETCH r.requester LEFT JOIN FETCH r.resolvedBy LEFT JOIN FETCH r.fulfilledDocument ORDER BY r.createdAt DESC")
     List<FileRequest> findAllWithUsers();
 
-    @Query("SELECT r FROM FileRequest r JOIN FETCH r.requester LEFT JOIN FETCH r.resolvedBy WHERE r.requester.id = :requesterId ORDER BY r.createdAt DESC")
+    @Query("SELECT r FROM FileRequest r JOIN FETCH r.requester LEFT JOIN FETCH r.resolvedBy LEFT JOIN FETCH r.fulfilledDocument WHERE r.requester.id = :requesterId ORDER BY r.createdAt DESC")
     List<FileRequest> findAllByRequesterId(UUID requesterId);
 }
