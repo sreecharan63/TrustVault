@@ -266,8 +266,8 @@ public class DocumentService {
 
         boolean isAdmin = user.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN;
         List<Document> documents = isAdmin
-                ? documentRepository.findAllByStatusOrderByCreatedAtDesc(DocumentStatus.ACTIVE)
-                : documentRepository.findAllByOwner_IdAndStatusOrderByCreatedAtDesc(
+                ? documentRepository.findAllByStatusOrderByUpdatedAtDesc(DocumentStatus.ACTIVE)
+                : documentRepository.findAllByOwner_IdAndStatusOrderByUpdatedAtDesc(
                         user.getId(),
                         DocumentStatus.ACTIVE
                 );
@@ -347,6 +347,11 @@ public class DocumentService {
                     );
                 })
                 .filter(Objects::nonNull)
+                .sorted((a, b) -> {
+                    OffsetDateTime t1 = a.updatedAt() != null ? a.updatedAt() : a.createdAt();
+                    OffsetDateTime t2 = b.updatedAt() != null ? b.updatedAt() : b.createdAt();
+                    return t2.compareTo(t1);
+                })
                 .toList();
     }
 
@@ -373,6 +378,12 @@ public class DocumentService {
                 responses.add(toResponse(doc, true, true, true, true));
             }
         }
+
+        responses.sort((a, b) -> {
+            OffsetDateTime t1 = a.updatedAt() != null ? a.updatedAt() : a.createdAt();
+            OffsetDateTime t2 = b.updatedAt() != null ? b.updatedAt() : b.createdAt();
+            return t2.compareTo(t1);
+        });
 
         return responses;
     }

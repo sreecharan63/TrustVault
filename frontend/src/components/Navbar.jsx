@@ -1,9 +1,11 @@
 import React from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import { useNotifications } from '../contexts/NotificationContext.jsx'
 
 export default function Navbar() {
   const { user, logout, isAdmin } = useAuth()
+  const { unreadCounts } = useNotifications()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -35,10 +37,10 @@ export default function Navbar() {
         </Link>
         <div style={{ display: 'flex', gap: '0.25rem' }}>
           <NavLink to="/" label="Dashboard" location={location} />
-          <NavLink to="/documents" label="My Docs" location={location} />
-          <NavLink to="/shared-with-me" label="Shared With Me" location={location} />
-          <NavLink to="/shared-by-me" label="Shared By Me" location={location} />
-          <NavLink to="/requests" label="Requests" location={location} />
+          <NavLink to="/documents" label="My Docs" count={unreadCounts?.documents || 0} location={location} />
+          <NavLink to="/shared-with-me" label="Shared With Me" count={unreadCounts?.sharedWithMe || 0} location={location} />
+          <NavLink to="/shared-by-me" label="Shared By Me" count={unreadCounts?.sharedByMe || 0} location={location} />
+          <NavLink to="/requests" label="Requests" count={unreadCounts?.requests || 0} location={location} />
           {isAdmin && <NavLink to="/admin/audit" label="Audit Logs" location={location} />}
         </div>
       </div>
@@ -62,7 +64,7 @@ export default function Navbar() {
   )
 }
 
-function NavLink({ to, label, location }) {
+function NavLink({ to, label, location, count }) {
   const active = location.pathname === to
   return (
     <Link to={to} style={{
@@ -72,9 +74,30 @@ function NavLink({ to, label, location }) {
       color: active ? 'var(--accent)' : 'var(--text-muted)',
       background: active ? 'rgba(91,141,238,0.12)' : 'transparent',
       textDecoration: 'none',
-      transition: 'all 0.15s'
+      transition: 'all 0.15s',
+      position: 'relative',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.4rem'
     }}>
       {label}
+      {count > 0 && (
+        <span style={{
+          backgroundColor: '#ef4444',
+          color: '#ffffff',
+          fontSize: '0.7rem',
+          fontWeight: 700,
+          lineHeight: '1',
+          padding: '0.15rem 0.4rem',
+          borderRadius: '9999px',
+          boxShadow: '0 0 6px rgba(239, 68, 68, 0.6)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {count > 99 ? '99+' : count}
+        </span>
+      )}
     </Link>
   )
 }

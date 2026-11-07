@@ -1,7 +1,8 @@
 import React from 'react'
 
-export default function DocumentCard({ doc, actions }) {
+export default function DocumentCard({ doc, actions, isUpdated }) {
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : '-'
+  const fmtTime = (d) => d ? new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
   const fmtSize = (bytes) => {
     if (!bytes) return '-'
     if (bytes < 1024) return bytes + ' B'
@@ -19,8 +20,51 @@ export default function DocumentCard({ doc, actions }) {
     return '📄'
   }
 
+  const isNew = doc.createdAt === doc.updatedAt || doc.currentVersionNumber === 1
+
   return (
-    <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div
+      className="card"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.75rem',
+        position: 'relative',
+        transition: 'all 0.25s ease',
+        ...(isUpdated ? {
+          border: '1.5px solid #10b981',
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.09) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          boxShadow: '0 0 16px rgba(16, 185, 129, 0.22)'
+        } : {})
+      }}
+    >
+      {/* Visual Color Indication Badge for New/Updated Documents */}
+      {isUpdated && (
+        <div style={{
+          position: 'absolute',
+          top: '-10px',
+          right: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          zIndex: 2
+        }}>
+          <span style={{
+            background: '#10b981',
+            color: '#ffffff',
+            fontSize: '0.7rem',
+            fontWeight: 800,
+            letterSpacing: '0.04em',
+            padding: '0.2rem 0.6rem',
+            borderRadius: '9999px',
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.5)',
+            textTransform: 'uppercase'
+          }}>
+            ✨ {isNew ? 'New' : 'Updated'}
+          </span>
+        </div>
+      )}
+
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
         <span style={{ fontSize: '2rem' }}>{typeIcon(doc.contentType)}</span>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -28,9 +72,14 @@ export default function DocumentCard({ doc, actions }) {
             {doc.originalFilename}
           </div>
           {doc.description && <div className="text-muted" style={{ marginTop: '0.2rem' }}>{doc.description}</div>}
-          <div className="text-muted" style={{ marginTop: '0.35rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="text-muted" style={{ marginTop: '0.35rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.8rem' }}>
             <span>{fmtSize(doc.fileSize)}</span>
-            <span>{fmtDate(doc.createdAt)}</span>
+            <span>Created {fmtDate(doc.createdAt)}</span>
+            {doc.updatedAt && doc.updatedAt !== doc.createdAt && (
+              <span style={{ color: isUpdated ? '#34d399' : 'inherit', fontWeight: isUpdated ? 600 : 'normal' }}>
+                Updated {fmtDate(doc.updatedAt)} {fmtTime(doc.updatedAt)}
+              </span>
+            )}
             {doc.currentVersionNumber > 1 && <span>v{doc.currentVersionNumber}</span>}
           </div>
         </div>

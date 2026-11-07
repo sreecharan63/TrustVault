@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import { useNotifications } from '../contexts/NotificationContext.jsx'
 import { getMyDocuments, downloadDocument, deleteDocument } from '../api/documents.js'
 import DocumentCard from '../components/DocumentCard.jsx'
 import UploadModal from '../components/UploadModal.jsx'
@@ -11,6 +12,7 @@ import ActivityModal from '../components/ActivityModal.jsx'
 
 export default function MyDocumentsPage() {
   const { user, isAdmin } = useAuth()
+  const { isItemUpdated, markSectionSeen, refreshCounts } = useNotifications()
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -70,6 +72,18 @@ export default function MyDocumentsPage() {
   const categories = [...new Set(docs.map(d => d.category).filter(Boolean))]
   const isViewer = user?.role === 'VIEWER'
 
+  // Sort updated/new documents directly to the top!
+  const sortedDocs = [...docs].sort((a, b) => {
+    const aUp = isItemUpdated('documents', a) ? 1 : 0
+    const bUp = isItemUpdated('documents', b) ? 1 : 0
+    if (aUp !== bUp) return bUp - aUp
+    const tA = new Date(a.updatedAt || a.createdAt).getTime()
+    const tB = new Date(b.updatedAt || b.createdAt).getTime()
+    return tB - tA
+  })
+
+  const updatedCount = docs.filter(d => isItemUpdated('documents', d)).length
+
   return (
     <div className="page">
       <div className="flex-between mb-2">
@@ -87,6 +101,32 @@ export default function MyDocumentsPage() {
           <button className="btn btn-primary" onClick={() => setShowUpload(true)}>📤 Upload</button>
         )}
       </div>
+
+      {updatedCount > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          borderRadius: '8px',
+          padding: '0.65rem 1rem',
+          marginBottom: '1rem',
+          color: '#34d399',
+          fontSize: '0.875rem'
+        }}>
+          <span>
+            ✨ <strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with green highlight).
+          </span>
+          <button
+            className="btn btn-sm"
+            style={{ background: '#10b981', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            onClick={() => { markSectionSeen('documents'); refreshCounts() }}
+          >
+            ✓ Mark as viewed
+          </button>
+        </div>
+      )}
 
       {isViewer && (
         <div style={{
@@ -125,10 +165,11 @@ export default function MyDocumentsPage() {
         </div>
       ) : (
         <div className="grid-2">
-          {docs.map(doc => (
+          {sortedDocs.map(doc => (
             <DocumentCard
               key={doc.id}
               doc={doc}
+              isUpdated={isItemUpdated('documents', doc)}
               actions={[
                 { label: '⬇ Download', onClick: () => handleDownload(doc) },
                 { label: '✏️ Edit', onClick: () => setEditDoc(doc) },

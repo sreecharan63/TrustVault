@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { getSharedByMe } from '../api/documents.js'
+import { useNotifications } from '../contexts/NotificationContext.jsx'
 import DocumentCard from '../components/DocumentCard.jsx'
 import PermissionsModal from '../components/PermissionsModal.jsx'
 import ShareModal from '../components/ShareModal.jsx'
 
 export default function SharedByMePage() {
+  const { isItemUpdated, markSectionSeen, refreshCounts } = useNotifications()
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -26,9 +28,50 @@ export default function SharedByMePage() {
 
   useEffect(() => { fetchDocs() }, [])
 
+  // Sort updated/newly shared documents directly to the top!
+  const sortedDocs = [...docs].sort((a, b) => {
+    const aUp = isItemUpdated('sharedByMe', a) ? 1 : 0
+    const bUp = isItemUpdated('sharedByMe', b) ? 1 : 0
+    if (aUp !== bUp) return bUp - aUp
+    const tA = new Date(a.updatedAt || a.createdAt).getTime()
+    const tB = new Date(b.updatedAt || b.createdAt).getTime()
+    return tB - tA
+  })
+
+  const updatedCount = docs.filter(d => isItemUpdated('sharedByMe', d)).length
+
   return (
     <div className="page">
-      <h1 className="page-title">Shared By Me</h1>
+      <div className="flex-between mb-2">
+        <h1 className="page-title" style={{ margin: 0 }}>Shared By Me</h1>
+      </div>
+
+      {updatedCount > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          borderRadius: '8px',
+          padding: '0.65rem 1rem',
+          marginBottom: '1rem',
+          color: '#34d399',
+          fontSize: '0.875rem'
+        }}>
+          <span>
+            ✨ <strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently updated or shared (placed at the top with green highlight).
+          </span>
+          <button
+            className="btn btn-sm"
+            style={{ background: '#10b981', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            onClick={() => { markSectionSeen('sharedByMe'); refreshCounts() }}
+          >
+            ✓ Mark as viewed
+          </button>
+        </div>
+      )}
+
       {error && <div className="error-box">{error}</div>}
 
       {loading ? <div className="spinner" /> : docs.length === 0 ? (
@@ -37,10 +80,11 @@ export default function SharedByMePage() {
         </div>
       ) : (
         <div className="grid-2">
-          {docs.map(doc => (
+          {sortedDocs.map(doc => (
             <DocumentCard
               key={doc.id}
               doc={doc}
+              isUpdated={isItemUpdated('sharedByMe', doc)}
               actions={[
                 { label: '🔐 Manage Permissions', onClick: () => setPermsDoc(doc) },
                 { label: '🔗 Share More', onClick: () => setShareDoc(doc) },

@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import { useNotifications } from '../contexts/NotificationContext.jsx'
 import { getMyFileRequests, getAllFileRequests, resolveFileRequest } from '../api/requests.js'
 import { downloadDocument } from '../api/documents.js'
 import NewRequestModal from '../components/NewRequestModal.jsx'
 
 export default function RequestsPage() {
   const { user, isAdmin } = useAuth()
+  const { isItemUpdated, markSectionSeen, refreshCounts } = useNotifications()
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -83,10 +85,16 @@ export default function RequestsPage() {
     }
   }
 
-  const filteredRequests = requests.filter(r => {
-    if (filterStatus === 'ALL') return true
-    return r.status === filterStatus
+  const sortedRequests = [...filteredRequests].sort((a, b) => {
+    const aUp = isItemUpdated('requests', a) ? 1 : 0
+    const bUp = isItemUpdated('requests', b) ? 1 : 0
+    if (aUp !== bUp) return bUp - aUp
+    const tA = new Date(a.updatedAt || a.createdAt || a.requestedAt).getTime()
+    const tB = new Date(b.updatedAt || b.createdAt || b.requestedAt).getTime()
+    return tB - tA
   })
+
+  const updatedCount = requests.filter(r => isItemUpdated('requests', r)).length
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -134,6 +142,32 @@ export default function RequestsPage() {
         )}
       </div>
 
+      {updatedCount > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          borderRadius: '8px',
+          padding: '0.65rem 1rem',
+          marginBottom: '1rem',
+          color: '#34d399',
+          fontSize: '0.875rem'
+        }}>
+          <span>
+            ✨ <strong>{updatedCount}</strong> request{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with green highlight).
+          </span>
+          <button
+            className="btn btn-sm"
+            style={{ background: '#10b981', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            onClick={() => { markSectionSeen('requests'); refreshCounts() }}
+          >
+            ✓ Mark as viewed
+          </button>
+        </div>
+      )}
+
       {isAdmin && (
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
           {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map(st => (
@@ -177,17 +211,39 @@ export default function RequestsPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredRequests.map(req => (
-                <tr key={req.id}>
-                  {isAdmin && (
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{req.requesterName}</div>
-                      <div className="text-muted" style={{ fontSize: '0.75rem' }}>{req.requesterEmail}</div>
+              {sortedRequests.map(req => {
+                const isUpdated = isItemUpdated('requests', req)
+                return (
+                  <tr
+                    key={req.id}
+                    style={isUpdated ? {
+                      backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                      borderLeft: '4px solid #10b981'
+                    } : {}}
+                  >
+                    {isAdmin && (
+                      <td>
+                        <div style={{ fontWeight: 600 }}>{req.requesterName}</div>
+                        <div className="text-muted" style={{ fontSize: '0.75rem' }}>{req.requesterEmail}</div>
+                      </td>
+                    )}
+                    <td style={{ fontWeight: 600 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <span>📄 {req.fileName}</span>
+                        {isUpdated && (
+                          <span style={{
+                            background: '#10b981',
+                            color: '#fff',
+                            fontSize: '0.65rem',
+                            fontWeight: 700,
+                            padding: '0.1rem 0.4rem',
+                            borderRadius: 9999
+                          }}>
+                            ✨ {req.status !== 'PENDING' ? 'UPDATED' : 'NEW'}
+                          </span>
+                        )}
+                      </div>
                     </td>
-                  )}
-                  <td style={{ fontWeight: 600 }}>
-                    📄 {req.fileName}
-                  </td>
                   <td>{getAccessBadge(req.accessSpecification)}</td>
                   <td style={{ maxWidth: 260 }}>
                     <div style={{ wordBreak: 'break-word' }}>{req.description}</div>
@@ -247,7 +303,7 @@ export default function RequestsPage() {
                     </td>
                   )}
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
