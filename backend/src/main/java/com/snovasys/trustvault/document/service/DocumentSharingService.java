@@ -262,7 +262,9 @@ public class DocumentSharingService {
                 ipAddress,
                 userAgent,
                 Map.of(
+                        "filename", document.getOriginalFilename(),
                         "recipientEmail", recipient.getEmail(),
+                        "recipientName", recipient.getFullName() != null ? recipient.getFullName() : recipient.getEmail(),
                         "canRead", canRead,
                         "canEdit", canEdit,
                         "canDownload", canDownload,
@@ -414,7 +416,9 @@ public class DocumentSharingService {
                 ipAddress,
                 userAgent,
                 Map.of(
+                        "filename", document.getOriginalFilename(),
                         "recipientEmail", recipient.getEmail(),
+                        "recipientName", recipient.getFullName() != null ? recipient.getFullName() : recipient.getEmail(),
                         "canRead", canRead,
                         "canEdit", canEdit,
                         "canDownload", canDownload,
@@ -452,29 +456,27 @@ public class DocumentSharingService {
         );
 
         // Verify document ownership or ADMIN supervisory rights.
-        if (owner.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN) {
-            documentRepository.findByIdAndStatus(documentId, DocumentStatus.ACTIVE)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
-        } else {
-            documentRepository.findByIdAndOwner_IdAndStatus(
-                    documentId,
-                    owner.getId(),
-                    DocumentStatus.ACTIVE
-            ).orElseThrow(() -> {
-                recordDenied(
-                        owner,
-                        "PERMISSION_REVOKE",
+        Document document = (owner.getRole() == com.snovasys.trustvault.user.entity.Role.ADMIN)
+                ? documentRepository.findByIdAndStatus(documentId, DocumentStatus.ACTIVE)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"))
+                : documentRepository.findByIdAndOwner_IdAndStatus(
                         documentId,
-                        "DOCUMENT_NOT_OWNED_OR_NOT_ACTIVE",
-                        ipAddress,
-                        userAgent
-                );
-                return new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Document not found"
-                );
-            });
-        }
+                        owner.getId(),
+                        DocumentStatus.ACTIVE
+                ).orElseThrow(() -> {
+                    recordDenied(
+                            owner,
+                            "PERMISSION_REVOKE",
+                            documentId,
+                            "DOCUMENT_NOT_OWNED_OR_NOT_ACTIVE",
+                            ipAddress,
+                            userAgent
+                    );
+                    return new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Document not found"
+                    );
+                });
 
         if (recipientEmail == null || recipientEmail.isBlank()) {
 
@@ -550,7 +552,9 @@ public class DocumentSharingService {
                 ipAddress,
                 userAgent,
                 Map.of(
+                        "filename", document.getOriginalFilename(),
                         "recipientEmail", recipient.getEmail(),
+                        "recipientName", recipient.getFullName() != null ? recipient.getFullName() : recipient.getEmail(),
                         "permissionId", permission.getId().toString()
                 )
         );

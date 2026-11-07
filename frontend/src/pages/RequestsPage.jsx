@@ -85,16 +85,21 @@ export default function RequestsPage() {
     }
   }
 
+  const filteredRequests = requests.filter(r => {
+    if (filterStatus === 'ALL') return true
+    return r.status === filterStatus
+  })
+
   const sortedRequests = [...filteredRequests].sort((a, b) => {
-    const aUp = isItemUpdated('requests', a) ? 1 : 0
-    const bUp = isItemUpdated('requests', b) ? 1 : 0
+    const aUp = isItemUpdated ? (isItemUpdated('requests', a) ? 1 : 0) : 0
+    const bUp = isItemUpdated ? (isItemUpdated('requests', b) ? 1 : 0) : 0
     if (aUp !== bUp) return bUp - aUp
-    const tA = new Date(a.updatedAt || a.createdAt || a.requestedAt).getTime()
-    const tB = new Date(b.updatedAt || b.createdAt || b.requestedAt).getTime()
+    const tA = new Date(a.updatedAt || a.createdAt || a.requestedAt || 0).getTime()
+    const tB = new Date(b.updatedAt || b.createdAt || b.requestedAt || 0).getTime()
     return tB - tA
   })
 
-  const updatedCount = requests.filter(r => isItemUpdated('requests', r)).length
+  const updatedCount = isItemUpdated ? requests.filter(r => isItemUpdated('requests', r)).length : 0
 
   const getStatusBadge = (status) => {
     switch (status) {

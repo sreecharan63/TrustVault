@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { getAuditLogs } from '../api/admin.js'
+import PermissionsModal from '../components/PermissionsModal.jsx'
 
 export default function AdminAuditPage() {
   const [logs, setLogs] = useState([])
@@ -7,6 +8,7 @@ export default function AdminAuditPage() {
   const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [selectedDocForPerms, setSelectedDocForPerms] = useState(null)
 
   // Filters
   const [actorEmail, setActorEmail] = useState('')
@@ -65,9 +67,66 @@ export default function AdminAuditPage() {
 
   const fmtDate = (d) => d ? new Date(d).toLocaleString() : '-'
 
+  const formatEventBadge = (type, outcome) => {
+    const isSuccess = outcome === 'SUCCESS'
+    const colorClass = isSuccess ? 'badge-success' : 'badge-danger'
+
+    const labels = {
+      'PERMISSION_GRANT': '🔑 Granted Permission',
+      'PERMISSION_UPDATE': '✏️ Updated Permission',
+      'PERMISSION_REVOKE': '🚫 Revoked Permission',
+      'DOCUMENT_UPLOAD': '📤 Uploaded Document',
+      'DOCUMENT_DOWNLOAD': '⬇️ Downloaded Document',
+      'DOCUMENT_PREVIEW': '👁️ Previewed Document',
+      'DOCUMENT_UPDATE': '📝 Updated Metadata',
+      'DOCUMENT_DELETE': '🗑️ Soft-Deleted',
+      'VERSION_CREATE': '📦 Created Version',
+      'VERSION_RESTORE': '⏪ Restored Version'
+    }
+
+    return (
+      <span className={`badge ${colorClass}`} style={{ fontWeight: 600 }}>
+        {labels[type] || type}
+      </span>
+    )
+  }
+
+  const renderAccessBadges = (details) => {
+    if (!details || typeof details !== 'object') return null
+    const hasPerms = details.canRead !== undefined || details.canEdit !== undefined || details.canDownload !== undefined
+    if (!hasPerms) return null
+
+    return (
+      <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
+        {details.canRead && (
+          <span className="badge badge-success" style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem' }}>
+            👁️ Read
+          </span>
+        )}
+        {details.canEdit && (
+          <span className="badge badge-warning" style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem' }}>
+            ✏️ Edit
+          </span>
+        )}
+        {details.canDownload && (
+          <span className="badge" style={{ background: '#3b82f6', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: 9999 }}>
+            ⬇️ Download
+          </span>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="page">
-      <h1 className="page-title">🛡️ Audit Logs</h1>
+      <div className="flex-between mb-2">
+        <div>
+          <h1 className="page-title" style={{ margin: 0 }}>🛡️ Global Audit Trail</h1>
+          <p className="text-muted" style={{ marginTop: '0.25rem' }}>
+            Cryptographically sealed, append-only record of all document accesses, permission grants, modifications, and security denials.
+          </p>
+        </div>
+      </div>
 
       <div className="card mb-2">
         <form onSubmit={handleFilter}>
@@ -122,25 +181,122 @@ export default function AdminAuditPage() {
               <table>
                 <thead>
                   <tr>
-                    <th>Event</th>
-                    <th>Actor</th>
-                    <th>Outcome</th>
-                    <th>Resource ID</th>
                     <th>Timestamp</th>
-                    <th>Details</th>
+                    <th>Action</th>
+                    <th>Document</th>
+                    <th>From ➔ To</th>
+                    <th>Access Details</th>
+                    <th>Outcome</th>
+                    <th>Admin Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {logs.map((log, i) => (
-                    <tr key={log.id || i}>
-                      <td><span className={`badge ${log.outcome === 'SUCCESS' ? 'badge-success' : 'badge-danger'}`}>{log.eventType}</span></td>
-                      <td>{log.actorEmail || '-'}</td>
-                      <td><span className={`badge ${log.outcome === 'SUCCESS' ? 'badge-success' : 'badge-danger'}`}>{log.outcome}</span></td>
-                      <td style={{ fontSize: '0.75rem', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis' }} title={log.resourceId}>{log.resourceId?.substring(0, 8) || '-'}</td>
-                      <td>{fmtDate(log.createdAt)}</td>
-                      <td style={{ fontSize: '0.75rem', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>{typeof log.details === 'object' ? JSON.stringify(log.details) : (log.details || '-')}</td>
-                    </tr>
-                  ))}
+                  {logs.map((log, i) => {
+                    const d = log.details || {}
+                    const isPermEvent = log.eventType?.startsWith('PERMISSION_')
+                    const isDocEvent = log.resourceType === 'DOCUMENT' && log.resourceId
+                    const fileName = d.filename || (log.resourceId ? `File: ${log.resourceId.substring(0, 8)}...` : null)
+                    const recipient = d.recipientName || d.recipientEmail
+
+                    return (
+                      <tr key={log.id || i}>
+                        {/* Timestamp */}
+                        <td style={{ whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
+                          {fmtDate(log.createdAt)}
+                        </td>
+
+                        {/* Action Event Badge */}
+                        <td>
+                          {formatEventBadge(log.eventType, log.outcome)}
+                        </td>
+
+                        {/* Document Name */}
+                        <td>
+                          {fileName ? (
+                            <div>
+                              <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>📄 {fileName}</div>
+                              {log.resourceId && (
+                                <div className="text-muted" style={{ fontSize: '0.7rem' }}>
+                                  ID: {log.resourceId.substring(0, 8)}...
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted">—</span>
+                          )}
+                        </td>
+
+                        {/* From ➔ To */}
+                        <td>
+                          <div style={{ fontSize: '0.85rem' }}>
+                            <strong>From:</strong> <span style={{ color: 'var(--text)' }}>{log.actorEmail || 'System'}</span>
+                          </div>
+                          {recipient && (
+                            <div style={{ marginTop: '0.25rem', fontSize: '0.85rem', color: '#60a5fa' }}>
+                              <strong>➔ To:</strong> {recipient}
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Access Details */}
+                        <td>
+                          {renderAccessBadges(d)}
+                          {d.versionNumber && (
+                            <span className="badge badge-neutral" style={{ fontSize: '0.7rem' }}>
+                              v{d.versionNumber}
+                            </span>
+                          )}
+                          {d.fileSize && (
+                            <span className="text-muted" style={{ fontSize: '0.75rem', display: 'block', marginTop: '0.2rem' }}>
+                              {(d.fileSize / 1024).toFixed(1)} KB
+                            </span>
+                          )}
+                          {d.reason && (
+                            <span style={{ color: '#f87171', fontWeight: 600, fontSize: '0.75rem', display: 'block' }}>
+                              ⚠️ Denied: {d.reason}
+                            </span>
+                          )}
+                          {!d.canRead && !d.canEdit && !d.canDownload && !d.reason && !d.versionNumber && !d.fileSize && (
+                            <span className="text-muted" style={{ fontSize: '0.75rem' }}>Completed</span>
+                          )}
+                        </td>
+
+                        {/* Outcome */}
+                        <td>
+                          <span className={`badge ${log.outcome === 'SUCCESS' ? 'badge-success' : 'badge-danger'}`}>
+                            {log.outcome}
+                          </span>
+                        </td>
+
+                        {/* Admin Action: Change Permission Right There */}
+                        <td>
+                          {isDocEvent ? (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-primary"
+                              style={{
+                                fontSize: '0.75rem',
+                                padding: '0.25rem 0.6rem',
+                                whiteSpace: 'nowrap',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem'
+                              }}
+                              onClick={() => setSelectedDocForPerms({
+                                id: log.resourceId,
+                                originalFilename: d.filename
+                              })}
+                              title="Modify active permissions for this document directly"
+                            >
+                              🔐 Change Perms
+                            </button>
+                          ) : (
+                            <span className="text-muted" style={{ fontSize: '0.75rem' }}>—</span>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
 
@@ -154,6 +310,15 @@ export default function AdminAuditPage() {
             </>
           )}
         </div>
+      )}
+
+      {/* Admin Inline Permissions Modal */}
+      {selectedDocForPerms && (
+        <PermissionsModal
+          doc={selectedDocForPerms}
+          onClose={() => setSelectedDocForPerms(null)}
+          onRefresh={fetchLogs}
+        />
       )}
     </div>
   )

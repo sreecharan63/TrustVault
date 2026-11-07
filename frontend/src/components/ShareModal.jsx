@@ -157,37 +157,89 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Permissions</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.4rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={canRead}
-                  onChange={e => {
-                    const checked = e.target.checked
-                    setCanRead(checked)
-                    if (checked) setCanDownload(true)
-                  }}
-                />
-                Can Read (includes Download access)
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={canEdit}
-                  onChange={e => setCanEdit(e.target.checked)}
-                />
-                Can Edit (modify document)
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: canRead ? 'default' : 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={canDownload || canRead}
-                  disabled={canRead}
-                  onChange={e => setCanDownload(e.target.checked)}
-                />
-                <span>Can Download {canRead && <span className="text-muted text-sm">(included with Read)</span>}</span>
-              </label>
+            <label className="form-label">Permission Access Levels (Click buttons to toggle)</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.65rem', marginTop: '0.5rem' }}>
+              
+              {/* Can Read Button Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !canRead
+                  setCanRead(next)
+                  if (next) setCanDownload(true)
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  border: canRead ? '1.5px solid #10b981' : '1px solid var(--border)',
+                  background: canRead ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                  color: canRead ? '#34d399' : 'var(--text-muted)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <span style={{ fontSize: '1.25rem' }}>{canRead ? '✅' : '⚪'}</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>👁️ Can Read</div>
+                  <div style={{ fontSize: '0.72rem', opacity: 0.85 }}>Includes file download</div>
+                </div>
+              </button>
+
+              {/* Can Edit Button Card */}
+              <button
+                type="button"
+                onClick={() => setCanEdit(prev => !prev)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  border: canEdit ? '1.5px solid #f59e0b' : '1px solid var(--border)',
+                  background: canEdit ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                  color: canEdit ? '#fbbf24' : 'var(--text-muted)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <span style={{ fontSize: '1.25rem' }}>{canEdit ? '✅' : '⚪'}</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>✏️ Can Edit</div>
+                  <div style={{ fontSize: '0.72rem', opacity: 0.85 }}>Modify & new versions</div>
+                </div>
+              </button>
+
+              {/* Can Download Button Card */}
+              <button
+                type="button"
+                disabled={canRead}
+                onClick={() => setCanDownload(prev => !prev)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '8px',
+                  cursor: canRead ? 'default' : 'pointer',
+                  textAlign: 'left',
+                  border: (canDownload || canRead) ? '1.5px solid #3b82f6' : '1px solid var(--border)',
+                  background: (canDownload || canRead) ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                  color: (canDownload || canRead) ? '#60a5fa' : 'var(--text-muted)',
+                  opacity: canRead ? 0.9 : 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <span style={{ fontSize: '1.25rem' }}>{(canDownload || canRead) ? '✅' : '⚪'}</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>⬇️ Can Download</div>
+                  <div style={{ fontSize: '0.72rem', opacity: 0.85 }}>{canRead ? 'Active via Read grant' : 'Download file directly'}</div>
+                </div>
+              </button>
             </div>
           </div>
 
