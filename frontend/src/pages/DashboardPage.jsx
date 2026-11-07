@@ -13,13 +13,9 @@ export default function DashboardPage() {
   useEffect(() => {
     (async () => {
       try {
-        const [statsRes, docsRes] = await Promise.all([
-          getDashboardStats(),
-          getMyDocuments({ page: 0, size: 5 })
-        ])
+        const statsRes = await getDashboardStats()
         setStats(statsRes.data)
-        const docsData = docsRes.data
-        setRecent(Array.isArray(docsData) ? docsData : docsData.content || [])
+        setRecent(statsRes.data?.recentDocuments || [])
       } catch (err) {
         console.error('Dashboard load error:', err)
       } finally {

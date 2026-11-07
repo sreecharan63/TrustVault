@@ -4,7 +4,7 @@ export const getDashboardStats = () =>
   apiClient.get('/api/documents/dashboard-stats')
 
 export const getMyDocuments = (params) =>
-  apiClient.get('/api/documents/', { params })
+  apiClient.get('/api/documents', { params })
 
 export const getSharedWithMe = (params) =>
   apiClient.get('/api/documents/shared-with-me', { params })

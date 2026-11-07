@@ -68,7 +68,7 @@ public class DocumentController {
                 .body(response);
     }
 
-    @GetMapping
+    @GetMapping({"", "/"})
     public ResponseEntity<List<DocumentResponse>> getMyDocuments(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
@@ -80,7 +80,7 @@ public class DocumentController {
         return ResponseEntity.ok(documents);
     }
 
-    @GetMapping("/shared-with-me")
+    @GetMapping({"/shared-with-me", "/shared-with-me/"})
     public ResponseEntity<List<DocumentResponse>> getSharedWithMe(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
@@ -92,7 +92,7 @@ public class DocumentController {
         return ResponseEntity.ok(documents);
     }
 
-    @GetMapping("/shared-by-me")
+    @GetMapping({"/shared-by-me", "/shared-by-me/"})
     public ResponseEntity<List<DocumentResponse>> getSharedByMe(
             Authentication authentication) {
 
