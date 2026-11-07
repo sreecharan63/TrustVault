@@ -41,12 +41,20 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://127.0.0.1:5173",
-                "http://localhost:3000",
-                "http://127.0.0.1:3000"
+        java.util.List<String> patterns = new java.util.ArrayList<>(List.of(
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "https://*.vercel.app"
         ));
+        String envOrigins = System.getenv("TRUSTVAULT_CORS_ALLOWED_ORIGINS");
+        if (envOrigins != null && !envOrigins.isBlank()) {
+            for (String origin : envOrigins.split(",")) {
+                if (!origin.trim().isEmpty()) {
+                    patterns.add(origin.trim());
+                }
+            }
+        }
+        configuration.setAllowedOriginPatterns(patterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin"));
         configuration.setExposedHeaders(List.of("Content-Disposition", "Authorization"));
