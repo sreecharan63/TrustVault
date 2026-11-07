@@ -5,6 +5,7 @@ import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute.jsx'
 import Navbar from './components/Navbar.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import MyDocumentsPage from './pages/MyDocumentsPage.jsx'
 import SharedWithMePage from './pages/SharedWithMePage.jsx'
@@ -21,6 +22,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/documents" element={<ProtectedRoute><MyDocumentsPage /></ProtectedRoute>} />
           <Route path="/shared-with-me" element={<ProtectedRoute><SharedWithMePage /></ProtectedRoute>} />

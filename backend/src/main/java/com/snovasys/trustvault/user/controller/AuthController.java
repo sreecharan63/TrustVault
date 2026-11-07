@@ -1,17 +1,22 @@
 package com.snovasys.trustvault.user.controller;
 
 import com.snovasys.trustvault.user.dto.AuthResponse;
+import com.snovasys.trustvault.user.dto.ForgotPasswordRequest;
 import com.snovasys.trustvault.user.dto.LoginRequest;
 import com.snovasys.trustvault.user.dto.RegisterRequest;
+import com.snovasys.trustvault.user.dto.ResetPasswordRequest;
 import com.snovasys.trustvault.user.dto.UserProfileResponse;
 import com.snovasys.trustvault.user.service.AuthService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,6 +45,28 @@ public class AuthController {
 
         AuthResponse response = authService.login(request);
 
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request,
+            HttpServletRequest servletRequest) {
+
+        String ipAddress = servletRequest.getRemoteAddr();
+        String userAgent = servletRequest.getHeader("User-Agent");
+        Map<String, String> response = authService.forgotPassword(request.email(), ipAddress, userAgent);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request,
+            HttpServletRequest servletRequest) {
+
+        String ipAddress = servletRequest.getRemoteAddr();
+        String userAgent = servletRequest.getHeader("User-Agent");
+        Map<String, String> response = authService.resetPassword(request.token(), request.newPassword(), ipAddress, userAgent);
         return ResponseEntity.ok(response);
     }
 

@@ -47,8 +47,11 @@ export default function LoginPage() {
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required autoFocus />
           </div>
           <div className="form-group">
-            <label className="form-label">Password</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
+              <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>Forgot password?</Link>
+            </div>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required style={{ marginTop: '0.4rem' }} />
           </div>
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '0.5rem', justifyContent: 'center' }}>
             {loading ? '⏳ Signing in...' : '🔓 Sign In'}
