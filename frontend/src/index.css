@@ -91,6 +91,34 @@ input:focus, select:focus, textarea:focus {
 }
 input::placeholder, textarea::placeholder { 
   color: var(--text-muted); 
+  opacity: 1;
+}
+
+/* ========================================================
+   Browser Autofill Fix (Chrome, Edge, Safari, Firefox)
+   Prevents browser password managers from turning autofilled
+   inputs white, ensuring the dark theme is strictly maintained.
+   ======================================================== */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+select:-webkit-autofill,
+textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #111111 inset !important;
+  box-shadow: 0 0 0 1000px #111111 inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+  border-color: var(--border) !important;
+  transition: background-color 50000s ease-in-out 0s;
+}
+
+input:-webkit-autofill:focus,
+select:-webkit-autofill:focus,
+textarea:-webkit-autofill:focus {
+  border-color: var(--accent) !important;
+  -webkit-box-shadow: 0 0 0 1000px #111111 inset, 0 0 0 2px var(--accent-glow) !important;
+  box-shadow: 0 0 0 1000px #111111 inset, 0 0 0 2px var(--accent-glow) !important;
 }
 
 .btn {
