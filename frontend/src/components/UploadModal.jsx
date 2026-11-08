@@ -19,8 +19,8 @@ export default function UploadModal({ onClose, onSuccess }) {
       if (description) fd.append('description', description)
       if (category) fd.append('category', category)
       if (tags) fd.append('tags', tags)
-      await uploadDocument(fd)
-      onSuccess()
+      const res = await uploadDocument(fd)
+      onSuccess(res?.data)
     } catch (err) {
       setError(err.response?.data?.message || 'Upload failed.')
     } finally {

@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import { getSharedByMe } from '../api/documents.js'
+import { useAuth } from '../contexts/AuthContext.jsx'
 import { useNotifications } from '../contexts/NotificationContext.jsx'
 import DocumentCard from '../components/DocumentCard.jsx'
 import PermissionsModal from '../components/PermissionsModal.jsx'
 import ShareModal from '../components/ShareModal.jsx'
+import UploadModal from '../components/UploadModal.jsx'
 
 export default function SharedByMePage() {
+  const { user } = useAuth()
   const { isItemUpdated, markSectionSeen, refreshCounts } = useNotifications()
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [permsDoc, setPermsDoc] = useState(null)
   const [shareDoc, setShareDoc] = useState(null)
+  const [showUpload, setShowUpload] = useState(false)
+
+  const isViewer = user?.role === 'VIEWER'
 
   const fetchDocs = async () => {
     setLoading(true); setError('')
@@ -44,6 +50,11 @@ export default function SharedByMePage() {
     <div className="page">
       <div className="flex-between mb-2">
         <h1 className="page-title" style={{ margin: 0 }}>Shared By Me</h1>
+        {!isViewer && (
+          <button className="btn btn-primary" onClick={() => setShowUpload(true)}>
+            📤 Upload & Share
+          </button>
+        )}
       </div>
 
       {updatedCount > 0 && (
@@ -77,6 +88,15 @@ export default function SharedByMePage() {
       {loading ? <div className="spinner" /> : docs.length === 0 ? (
         <div className="empty-state">
           <p>You haven't shared any documents yet.</p>
+          {!isViewer && (
+            <button
+              className="btn btn-primary"
+              style={{ marginTop: '1rem' }}
+              onClick={() => setShowUpload(true)}
+            >
+              📤 Upload Document to Share
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid-2">
@@ -92,6 +112,19 @@ export default function SharedByMePage() {
             />
           ))}
         </div>
+      )}
+
+      {showUpload && (
+        <UploadModal
+          onClose={() => setShowUpload(false)}
+          onSuccess={(uploadedDoc) => {
+            setShowUpload(false)
+            fetchDocs()
+            if (uploadedDoc) {
+              setShareDoc(uploadedDoc)
+            }
+          }}
+        />
       )}
 
       {permsDoc && <PermissionsModal doc={permsDoc} onClose={() => setPermsDoc(null)} onRefresh={fetchDocs} />}
