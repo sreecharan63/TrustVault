@@ -24,13 +24,12 @@ export default function DocumentCard({ doc, actions, isUpdated }) {
 
   return (
     <div
-      className="card"
+      className="card document-card"
       style={{
         display: 'flex',
         flexDirection: 'column',
         gap: '0.75rem',
         position: 'relative',
-        transition: 'all 0.25s ease',
         ...(isUpdated ? {
           border: '1.5px solid var(--accent)',
           background: 'linear-gradient(135deg, rgba(229, 9, 20, 0.12) 0%, rgba(24, 24, 24, 0.98) 100%)',

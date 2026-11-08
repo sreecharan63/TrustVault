@@ -175,10 +175,20 @@ textarea:-webkit-autofill:focus {
   border-radius: var(--radius);
   padding: 1.25rem;
   box-shadow: var(--shadow);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 .card:hover {
-  border-color: #444444;
+  border-color: var(--accent) !important;
+  box-shadow: 0 6px 22px rgba(229, 9, 20, 0.28), 0 0 12px rgba(229, 9, 20, 0.2) !important;
+}
+
+.document-card {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.document-card:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 8px 26px rgba(229, 9, 20, 0.35), 0 0 16px rgba(229, 9, 20, 0.25) !important;
+  transform: translateY(-3px);
 }
 
 .modal-overlay {
@@ -338,6 +348,12 @@ tbody tr:hover td { background: #1e1e1e; }
   padding: 1.35rem; 
   box-shadow: var(--shadow);
   border-left: 3px solid var(--accent);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.stat-card:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 8px 24px rgba(229, 9, 20, 0.32), 0 0 14px rgba(229, 9, 20, 0.22) !important;
+  transform: translateY(-3px);
 }
 .stat-card .stat-num { 
   font-size: 2.2rem; 
