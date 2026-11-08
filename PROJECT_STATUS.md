@@ -1,85 +1,112 @@
-# TrustVault – Project Status
+# TrustVault – Project Status & Delivery Report
 
-## 1. Project Information
-
-- **Project:** TrustVault – Secure Document Sharing with a Real Audit Trail
-- **Challenge:** Snovasys Fresher Hiring Challenge
-- **Current Status:** Feature-Complete, Tested & Running
-- **Frontend URL:** `http://localhost:5173`
-- **Backend URL:** `http://localhost:8080`
+> **Last Updated:** 2026-11-08  
+> **Status:** Feature-Complete, Hardened, Live Deployed & Tested (100% Passing)
 
 ---
 
-## 2. Technology Stack & Verification
+## 1. Live Deployment Infrastructure
 
-| Component | Technology | Version | Status |
+| Component | Platform | Environment / Access Point | Status |
 |---|---|---|---|
-| Backend | Java, Spring Boot | Java 21, Spring Boot 4.0.0 | Verified & Running (port 8080) |
-| Security | Spring Security, JJWT, BCrypt | JJWT 0.12.6, BCrypt (strength 12) | Enforced & Tested |
-| Frontend | React, Vite, React Router, Axios | React 18.3, Vite 6.0 | Verified & Running (port 5173) |
-| Database | PostgreSQL | PostgreSQL 17.11 (port 5432) | Active |
-| Migrations | Flyway | Flyway 11.13.0 | Schema Version 3 Applied |
-| Testing | JUnit 5, Spring Security Test | 7 / 7 Tests Passing | BUILD SUCCESS |
-| Version Control | Git | Local `main` branch | Tracked |
+| **Frontend UI** | **Vercel** (Global Edge CDN) | **[https://trust-vault-mu.vercel.app](https://trust-vault-mu.vercel.app)** | **Live & Operational** |
+| **Backend REST API** | **Render** (Java 21 / Spring Boot 4) | **[https://trustvault-16f1.onrender.com](https://trustvault-16f1.onrender.com)** | **Live & Operational** |
+| **Managed Database** | **Neon** (PostgreSQL 17.11) | Direct unpooled connection (Port 5432) | **Active (Schema V7)** |
+| **Source Repository** | **GitHub** | **[https://github.com/sreecharan63/TrustVault](https://github.com/sreecharan63/TrustVault)** | **Main Branch Synced** |
 
 ---
 
-## 3. Completed Architecture & Features
+## 2. Technology Stack & Verification Matrix
 
-### A. Authentication & User Management
-- [x] BCrypt (strength 12) password hashing.
-- [x] Stateless JWT authentication with standard response format (`accessToken`, `tokenType`, `expiresIn`).
-- [x] Global role-based access control (`USER` and `ADMIN`).
-- [x] Current user profile endpoint (`GET /api/auth/me`).
-- [x] Client session management with automatic token attachment and 401 handling.
-
-### B. Document Management & File Storage
-- [x] Local storage outside web root (`D:\TrustVault\storage`).
-- [x] SHA-256 integrity checksum calculation upon upload and edit.
-- [x] MIME/type detection and file size validation.
-- [x] Metadata support: categorization and tag filtering.
-- [x] Full search over filename, description, category, and tags.
-- [x] Safe soft delete (`DELETED` status, timestamped, hidden from document listings).
-- [x] Preview (inline stream) and Download (attachment stream) endpoints.
-
-### C. Granular Sharing & Permissions
-- [x] Independent flags: `canRead`, `canEdit`, `canDownload`.
-- [x] Immediate revocation (`DELETE /api/documents/{id}/share?recipientEmail=...`).
-- [x] Permission modification (`PUT /api/documents/{id}/share`).
-- [x] Prevention of duplicate active permissions and sharing with self.
-- [x] Verification of active recipient account status.
-- [x] Shared-by-me and shared-with-me views.
-
-### D. Document Versioning
-- [x] Automated historical snapshots on file modification (`document_versions` table).
-- [x] Monotonically increasing version counter (`current_version_number`).
-- [x] Version listing and specific historical version download.
-- [x] Historical version restore with collision-safe storage file duplication.
-
-### E. Immutability & Audit Trail
-- [x] Tamper-resistant PostgreSQL audit log schema.
-- [x] Database-level trigger (`prevent_audit_log_modification`) prohibiting `UPDATE` and `DELETE`.
-- [x] Transactional propagation guarantees:
-  - Successful operations: `Propagation.MANDATORY`.
-  - Denied / unauthorized operations: `Propagation.REQUIRES_NEW`.
-- [x] Non-repudiation: captures actor email, client IP, user agent, event type, and outcome.
-- [x] Administrator audit query API with multi-field filtering (actor, event type, outcome, resource, dates) and pagination.
-- [x] Per-document activity trail accessible to owners and authorized collaborators.
-
-### F. Modern React Frontend
-- [x] Built with React 18, Vite, React Router v6, Axios, and clean CSS styling.
-- [x] Login and Registration screens with validation.
-- [x] Dashboard with quick stats (documents, categories, shares) and recent activity.
-- [x] "My Documents" with live search, category filtering, upload modal, inline actions (edit, share, manage permissions, view versions, view audit log, delete).
-- [x] "Shared With Me" enforcing granular permission-based actions.
-- [x] "Shared By Me" with live collaborator management and permission toggles.
-- [x] Administrator Audit Trail page with filters and pagination.
-- [x] User Profile page with role badge and secure sign out.
+| Layer | Technology | Version | Operational Status |
+|---|---|---|---|
+| **Backend Runtime** | Java JDK | OpenJDK 21 | Verified on Windows & Linux (Docker) |
+| **Framework** | Spring Boot | 4.0.0 (WebMVC, Data JPA, Security) | Verified & Tested |
+| **Security / Auth** | Spring Security, JJWT, BCrypt | JJWT 0.12.6, BCrypt (strength 12) | Strict Stateless Bearer Tokens |
+| **Database Engine** | PostgreSQL | PostgreSQL 17.11 | ACID Compliant, Kernel Triggers |
+| **Schema Migration** | Flyway | Flyway 11.14.1 | V1 through V7 with Auto-Repair Strategy |
+| **Frontend Framework** | React + Vite | React 18.3, Vite 6.0 | Production Bundled & Optimized |
+| **Design System** | Custom Netflix Cinematic Theme | `#141414`, `#181818`, `#E50914` | High Contrast, Custom Favicon & SVG Emblem |
+| **Test Engine** | JUnit 5, Spring Security Test | 14 Test Scenarios | **100% Passing (0 Failures, 0 Errors)** |
 
 ---
 
-## 4. Test Verification Summary
+## 3. Completed Architecture & Delivered Features
 
-- Context load test: **Passed**
-- Integration test suite (6 end-to-end tests): **Passed**
-- Overall test execution: **7 tests, 0 failures, 0 errors, 0 skipped**
+### A. Authentication & Self-Service Security
+- [x] **BCrypt Password Hashing**: Enforces 12-character minimum password policy with strength 12.
+- [x] **Stateless JWT**: Standard token assertion with `sub: email`, expiration, and automatic client-side Axios bearer interceptor.
+- [x] **Self-Service Password Reset**:
+  - Request reset token (`POST /api/auth/forgot-password`) with 15-minute time window.
+  - Cryptographically secure 32-byte tokens hashed via SHA-256 before database storage.
+  - Reset password execution (`POST /api/auth/reset-password`) with instant single-use invalidation.
+- [x] **Password Visibility Controls**: Interactive `Eye` / `EyeOff` toggles across Login, Register, and Forgot Password inputs.
+- [x] **Browser Autofill Theme Override**: Explicit `-webkit-autofill` box-shadow overrides preventing browser password managers from turning inputs white.
+
+### B. Three-Tier Role-Based Authorization
+- [x] **Administrator (`ADMIN`)**: Full supervisory authority over all platform documents, global immutable audit logs, file requests, and direct permission management.
+- [x] **Document Owner (`DOCUMENT_OWNER`)**: Authority to upload, version, grant/revoke permissions, and soft-delete owned documents.
+- [x] **Viewer (`VIEWER`)**: Restricted consumer allowed to view and download shared documents; **strictly blocked from uploading documents** (server returns HTTP 403).
+
+### C. Document Management & Versioning
+- [x] **Storage Isolation**: Files stored outside web root (`D:\TrustVault\storage`) using randomized cryptographic storage keys (`UUID + cleanName`).
+- [x] **Cryptographic Integrity**: SHA-256 checksum calculated on byte streams during upload and modification.
+- [x] **Metadata & Search**: Real-time search across filename, description, category, and tags.
+- [x] **Safe Soft-Deletion**: Timestamped `DELETED` status, preventing data loss while excluding deleted records from active listings.
+- [x] **Historical Snapshot Versioning**: Automatic version snapshots on modification (`document_versions`), monotonically increasing version counters, version downloads, and safe version restoration.
+
+### D. Sharing & Granular Access Control
+- [x] **Immediate Revocation**: Permissions queried live on PostgreSQL on every request; zero caching lag.
+- [x] **Read-Includes-Download Guarantee**: Enforces business rule that read access inherently provides download capability.
+- [x] **Collaborator Suggestion**: Dropdown list of existing users with self-share prevention.
+- [x] **Chained Upload & Share**: Dedicated `📤 Upload & Share` option in "Shared By Me" automatically opening the sharing modal upon file upload.
+
+### E. File Access Request Lifecycle
+- [x] **Request Submission**: Users can submit formal requests to administrators for specific files with descriptions and required access levels.
+- [x] **Administrator Request Queue**: Status filtering (`PENDING`, `APPROVED`, `REJECTED`) with count badges.
+- [x] **Direct Document Fulfillment**: Administrators fulfill requests by attaching the file directly; the system automatically stores the document and creates the requested permission for the requester.
+
+### F. Global Audit Trail & Compliance
+- [x] **Database-Enforced Immutability**: PostgreSQL trigger `trg_audit_logs_immutable` raises an exception on any `UPDATE` or `DELETE` attempt against `audit_logs`.
+- [x] **Independent Denial Auditing**: `AuditService.recordDenied()` executes with `@Transactional(propagation = Propagation.REQUIRES_NEW)` to capture unauthorized attempts even when operations abort.
+- [x] **Human-Readable Audit Interface**: Formatted columns displaying filename, actor, recipient, and access badge pills.
+- [x] **Inline Permission Management**: Direct `🔐 Change Perms` action button on audit rows for administrators.
+- [x] **One-Click Audit Log Export**: Client-side export to both **CSV** (spreadsheet-ready) and **JSON** with filter support.
+- [x] **New Audit Event Highlighting**: Unread audit comparison against `localStorage` displaying a glowing `NEW` badge and red accent border.
+
+### G. UI & Design System
+- [x] **Netflix Cinematic Dark Mode**: Primary canvas `#141414`, surface dark `#181818`, and signature brand red `#E50914`.
+- [x] **Card Hover Highlights**: Smooth 3D lift (`translateY(-3px)`) with glowing red theme border on hover.
+- [x] **Digital Protection Vault Emblem**: Custom vector SVG shield emblem and browser favicon (`favicon.svg`) with cyber circuit traces, circular vault door dial, and central lock core.
+- [x] **Real-Time Unread Counters**: Navbar badges showing unread document updates and file requests.
+
+---
+
+## 4. Test Verification & Penetration Suite
+
+### Security Penetration Test Suite (`SecurityAttackTests.java`) — 7/7 Passing:
+1. `testCrossTenantDirectObjectReferenceDeniedAndAudited`: Attacker blocked from downloading Victim's UUID; logged as `DENIED`.
+2. `testReadOnlyUserCannotEditDocument`: Viewer with read-only blocked from modifying document (HTTP 403).
+3. `testImmediateRevocationCutsOffAccess`: Immediate access cutoff verified within milliseconds of revocation.
+4. `testAuditTrailImmutabilityTriggerPreventsModifications`: SQL `UPDATE` and `DELETE` on `audit_logs` rejected by database trigger.
+5. `testUnauthenticatedAccessRejected`: Missing Bearer token rejected with HTTP 401.
+6. `testViewerCannotUploadDocuments`: User registered as `VIEWER` strictly prohibited from uploading (HTTP 403).
+7. `testAdminHasFullSupervisoryRightsToAnyDocument`: Verifies `ADMIN` has full supervisory authority to view, download, edit, share, and delete any document.
+
+### Integration Test Suite (`TrustvaultIntegrationTests.java`) — 7/7 Passing:
+- Complete end-to-end user registration, authentication, SHA-256 upload, sharing lifecycle, version restoration, soft-delete, and audit trail query.
+
+---
+
+## 5. Verification Commands
+
+```powershell
+# Run backend test suite
+cd backend
+.\mvnw.cmd test
+
+# Run frontend production build
+cd ..\frontend
+npm run build
+```
+Both backend tests and frontend Vite production builds pass with **zero errors**.
