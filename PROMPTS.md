@@ -226,4 +226,4 @@
   4. Updated [`AdminAuditPage.jsx`](file:///d:/TrustVault/frontend/src/pages/AdminAuditPage.jsx) to replace `🔍 Filter` with `<Filter size={15} /> Filter`.
   5. Updated [`PreviewModal.jsx`](file:///d:/TrustVault/frontend/src/components/PreviewModal.jsx) to replace `🔍-` and `🔍+` zoom buttons with `<ZoomOut size={13} />` and `<ZoomIn size={13} />` line icons.
 - **Commit References**:  
-  - `Upcoming Commit` — *feat(ui): replace search and zoom emojis with vector line design icons and animated focus wrapper*
+  - [`7c7b9e1`](https://github.com/sreecharan63/TrustVault/commit/7c7b9e1) — *feat(ui): replace search and zoom emojis with vector line design icons and animated focus wrapper*
