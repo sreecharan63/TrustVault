@@ -78,6 +78,7 @@
 - [x] **Netflix Cinematic Dark Mode**: Primary canvas `#141414`, surface dark `#181818`, and signature brand red `#E50914`.
 - [x] **Card Hover Highlights**: Smooth 3D lift (`translateY(-3px)`) with glowing red theme border on hover.
 - [x] **Digital Protection Vault Emblem**: Custom vector SVG shield emblem and browser favicon (`favicon.svg`) with cyber circuit traces, circular vault door dial, and central lock core.
+- [x] **In-App Document Preview Lightbox**: Embedded multi-format viewer supporting native PDFs, images (with zoom controls), formatted code/text/csv viewers, media players, and direct browser tab links.
 - [x] **Real-Time Unread Counters**: Navbar badges showing unread document updates and file requests.
 
 ---

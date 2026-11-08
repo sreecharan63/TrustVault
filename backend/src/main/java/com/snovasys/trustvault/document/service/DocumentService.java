@@ -462,7 +462,15 @@ public class DocumentService {
             }
         }
 
-        Path filePath = fileStorageService.load(document.getStorageKey());
+        Path filePath;
+        try {
+            filePath = fileStorageService.load(document.getStorageKey());
+        } catch (IOException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "The document file could not be found in storage. Please re-upload the document."
+            );
+        }
 
         // Record successful document download.
         auditService.recordSuccess(
@@ -547,12 +555,37 @@ public class DocumentService {
             }
         }
 
-        Path filePath = fileStorageService.load(document.getStorageKey());
+        Path filePath;
+        try {
+            filePath = fileStorageService.load(document.getStorageKey());
+        } catch (IOException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "The document file could not be found in storage. Please re-upload the document."
+            );
+        }
+
+        // Record successful document preview.
+        auditService.recordSuccess(
+                user.getId(),
+                user.getEmail(),
+                "DOCUMENT_PREVIEW",
+                "DOCUMENT",
+                document.getId(),
+                "SUCCESS",
+                ipAddress,
+                userAgent,
+                Map.of(
+                        "filename", document.getOriginalFilename(),
+                        "fileSize", document.getFileSize(),
+                        "contentType", document.getContentType() != null ? document.getContentType() : "application/octet-stream"
+                )
+        );
 
         return new DownloadFile(
                 filePath,
                 document.getOriginalFilename(),
-                document.getContentType()
+                document.getContentType() != null ? document.getContentType() : "application/octet-stream"
         );
     }
 
@@ -832,7 +865,12 @@ public class DocumentService {
         DocumentVersion version = versionRepository.findByDocument_IdAndVersionNumber(documentId, versionNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document version not found"));
 
-        Path filePath = fileStorageService.load(version.getStorageKey());
+        Path filePath;
+        try {
+            filePath = fileStorageService.load(version.getStorageKey());
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The document version file could not be found in storage.");
+        }
 
         auditService.recordSuccess(
                 user.getId(),

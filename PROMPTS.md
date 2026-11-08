@@ -154,3 +154,41 @@
   - [`f170a89`](https://github.com/sreecharan63/TrustVault/commit/f170a89) — *feat(shared-by-me): add upload and share option with instant share modal chaining*  
   - [`f0b6f80`](https://github.com/sreecharan63/TrustVault/commit/f0b6f80) — *feat(audit): add CSV/JSON audit log download export and highlight newly created audits with Netflix Red glowing indicator*  
   - [`9420f80`](https://github.com/sreecharan63/TrustVault/commit/9420f80) — *feat(ui): add theme border highlight and subtle glow effect when hovering over cards*
+
+---
+
+### Entry 11: 2026-11-08 — Interactive Document Detail & Permissions Hub Modal
+- **Prompt to AI**:  
+  *"in dashboard when a doc is clicked it should show the permissions then user can choose what he want to do withit"*
+- **What it produced**:  
+  Direct action triggers without a centralized document inspection or permission overview view.
+- **What was done instead**:  
+  1. Created `DocDetailModal.jsx` acting as a comprehensive Permissions & Actions Hub.
+  2. Displays effective permissions for the authenticated user (Read, Download, Edit & Versioning, Admin/Owner status).
+  3. Lists active collaborators and their assigned permission levels for owners and administrators.
+  4. Provides immediate action triggers for Preview/Open, Download, Edit/Upload New Version, Share, Manage Permissions, Version History, Audit Activity Trail, and Delete Document.
+- **Commit References**:  
+  - [`8e4b85c`](https://github.com/sreecharan63/TrustVault/commit/8e4b85c) — *feat(dashboard): add comprehensive document detail and permissions hub modal on card click*
+
+---
+
+### Entry 12: 2026-11-08 — In-App Document Preview Modal & Async Popup Blocker Fix
+- **Prompt to AI**:  
+  *"the preview is not working check once"*
+- **What was wrong with it**:  
+  1. **Async Popup Blocker**: Invoking `window.open(url, '_blank')` after an asynchronous `await previewDocument(doc.id)` broke the browser's user activation gesture tick; modern browsers (Chrome/Firefox/Safari) silently blocked the popup.
+  2. **Blob Error Masking**: With `responseType: 'blob'`, server error responses (e.g., 404 or 403) returned JSON bodies wrapped as a `Blob`, causing `err.response.data.message` to evaluate to `undefined` and displaying generic "Access denied" errors.
+  3. **Backend Audit & Resilience**: Missing `auditService.recordSuccess` on preview in `DocumentService.java` and unhandled `IOException` when local storage files are missing on ephemeral cloud container restarts.
+- **What was done instead**:  
+  1. Built `PreviewModal.jsx`: an embedded in-app Netflix dark theme lightbox viewer supporting:
+     - PDF native iframe viewer with built-in pagination and toolbars
+     - Image viewer (PNG, JPG, SVG, WebP, GIF) with zoom controls (Zoom In, Zoom Out, Reset 100%)
+     - Text / Code viewer (JSON, CSV, Markdown, JS, TS, Log, SQL) with line wrapping and one-click copy
+     - Video & Audio HTML5 media players
+     - Formatted fallback for unsupported binary formats with direct one-click buttons (`⬇️ Download File`, `↗️ Open in New Tab`)
+  2. Replaced fragile `window.open` calls with embedded `PreviewModal` and user-initiated direct `<a>` link buttons (`↗️ Open New Tab`) that browsers never block.
+  3. Added proper `Blob.text()` error parsing to unpack real backend error messages from blob responses.
+  4. Added `DOCUMENT_PREVIEW` success audit logging in `DocumentService.java` and translated storage `IOException` to clean HTTP 404 with helpful guidance.
+  5. Added one-click preview actions in `MyDocumentsPage.jsx` and `SharedWithMePage.jsx`.
+- **Commit References**:  
+  - `Upcoming Commit` — *fix(preview): add in-app preview modal viewer, record preview audit logs, and improve missing file handling*

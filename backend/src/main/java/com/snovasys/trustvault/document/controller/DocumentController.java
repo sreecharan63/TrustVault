@@ -132,7 +132,7 @@ public class DocumentController {
         );
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(downloadFile.contentType()))
+                .contentType(resolveMediaType(downloadFile.contentType()))
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + downloadFile.originalFilename() + "\""
@@ -160,7 +160,7 @@ public class DocumentController {
         );
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(previewFile.contentType()))
+                .contentType(resolveMediaType(previewFile.contentType()))
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
                         "inline; filename=\"" + previewFile.originalFilename() + "\""
@@ -243,7 +243,7 @@ public class DocumentController {
         Resource resource = new UrlResource(downloadFile.path().toUri());
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(downloadFile.contentType()))
+                .contentType(resolveMediaType(downloadFile.contentType()))
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + downloadFile.originalFilename() + "\""
@@ -357,5 +357,16 @@ public class DocumentController {
                 documentService.getDocumentActivity(documentId, authentication.getName());
 
         return ResponseEntity.ok(logs);
+    }
+
+    private MediaType resolveMediaType(String rawContentType) {
+        if (rawContentType == null || rawContentType.isBlank()) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
+        try {
+            return MediaType.parseMediaType(rawContentType);
+        } catch (Exception e) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
     }
 }

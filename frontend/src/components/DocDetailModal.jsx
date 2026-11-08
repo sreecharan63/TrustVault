@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { downloadDocument, previewDocument, deleteDocument, getDocumentPermissions } from '../api/documents.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import PreviewModal from './PreviewModal.jsx'
 
 export default function DocDetailModal({
   doc,
@@ -16,6 +17,7 @@ export default function DocDetailModal({
   const [collaborators, setCollaborators] = useState([])
   const [loadingAction, setLoadingAction] = useState('')
   const [error, setError] = useState('')
+  const [previewData, setPreviewData] = useState(null)
 
   if (!doc) return null
 
@@ -59,7 +61,19 @@ export default function DocDetailModal({
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {
-      setError(err.response?.data?.message || 'Download failed. Access denied.')
+      let msg = 'Download failed. Access denied.'
+      if (err.response?.data instanceof Blob) {
+        try {
+          const raw = await err.response.data.text()
+          const parsed = JSON.parse(raw)
+          if (parsed.message) msg = parsed.message
+        } catch {
+          // ignore json parse error
+        }
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message
+      }
+      setError(msg)
     } finally {
       setLoadingAction('')
     }
@@ -70,13 +84,46 @@ export default function DocDetailModal({
     setError('')
     try {
       const res = await previewDocument(doc.id)
-      // Wrap in explicit MIME type blob so browser renders it natively in the tab
-      const mimeType = doc.contentType || res.headers?.['content-type'] || 'application/pdf'
+      const mimeType = doc.contentType || res.headers?.['content-type'] || 'application/octet-stream'
       const blob = new Blob([res.data], { type: mimeType })
-      const url = URL.createObjectURL(blob)
-      window.open(url, '_blank')
+      const blobUrl = URL.createObjectURL(blob)
+
+      let textContent = null
+      const ext = (doc.originalFilename || '').split('.').pop().toLowerCase()
+      const isText = mimeType.startsWith('text/') ||
+        mimeType.includes('json') ||
+        mimeType.includes('javascript') ||
+        mimeType.includes('xml') ||
+        ['txt', 'csv', 'json', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'md', 'xml', 'yaml', 'yml', 'log', 'sql'].includes(ext)
+
+      if (isText) {
+        try {
+          textContent = await blob.text()
+        } catch {
+          // Fallback
+        }
+      }
+
+      setPreviewData({
+        doc,
+        blobUrl,
+        contentType: mimeType,
+        textContent
+      })
     } catch (err) {
-      setError(err.response?.data?.message || 'Preview failed. Access denied.')
+      let msg = 'Preview failed. Document cannot be loaded.'
+      if (err.response?.data instanceof Blob) {
+        try {
+          const raw = await err.response.data.text()
+          const parsed = JSON.parse(raw)
+          if (parsed.message) msg = parsed.message
+        } catch {
+          // ignore json parse error
+        }
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message
+      }
+      setError(msg)
     } finally {
       setLoadingAction('')
     }
@@ -318,6 +365,20 @@ export default function DocDetailModal({
           </div>
         </div>
       </div>
+
+      {/* In-App Document Preview Modal / Lightbox */}
+      {previewData && (
+        <PreviewModal
+          doc={previewData.doc}
+          blobUrl={previewData.blobUrl}
+          contentType={previewData.contentType}
+          textContent={previewData.textContent}
+          onClose={() => {
+            if (previewData.blobUrl) URL.revokeObjectURL(previewData.blobUrl)
+            setPreviewData(null)
+          }}
+        />
+      )}
     </div>
   )
 }

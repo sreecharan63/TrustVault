@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { getSharedWithMe, downloadDocument } from '../api/documents.js'
+import { getSharedWithMe, downloadDocument, previewDocument } from '../api/documents.js'
 import { useNotifications } from '../contexts/NotificationContext.jsx'
 import DocumentCard from '../components/DocumentCard.jsx'
 import EditDocumentModal from '../components/EditDocumentModal.jsx'
 import ActivityModal from '../components/ActivityModal.jsx'
 import VersionHistoryModal from '../components/VersionHistoryModal.jsx'
+import PreviewModal from '../components/PreviewModal.jsx'
 
 export default function SharedWithMePage() {
   const { isItemUpdated, markSectionSeen, refreshCounts } = useNotifications()
@@ -15,6 +16,7 @@ export default function SharedWithMePage() {
   const [editDoc, setEditDoc] = useState(null)
   const [activityDoc, setActivityDoc] = useState(null)
   const [versionsDoc, setVersionsDoc] = useState(null)
+  const [previewData, setPreviewData] = useState(null)
 
   const fetchDocs = useCallback(async () => {
     setLoading(true); setError('')
@@ -43,7 +45,59 @@ export default function SharedWithMePage() {
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {
-      alert(err.response?.data?.message || 'Download failed. You may not have download permission.')
+      let msg = 'Download failed. You may not have download permission.'
+      if (err.response?.data instanceof Blob) {
+        try {
+          const raw = await err.response.data.text()
+          const parsed = JSON.parse(raw)
+          if (parsed.message) msg = parsed.message
+        } catch {}
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message
+      }
+      alert(msg)
+    }
+  }
+
+  const handlePreview = async (doc) => {
+    try {
+      const res = await previewDocument(doc.id)
+      const mimeType = doc.contentType || res.headers?.['content-type'] || 'application/octet-stream'
+      const blob = new Blob([res.data], { type: mimeType })
+      const blobUrl = URL.createObjectURL(blob)
+
+      let textContent = null
+      const ext = (doc.originalFilename || '').split('.').pop().toLowerCase()
+      const isText = mimeType.startsWith('text/') ||
+        mimeType.includes('json') ||
+        mimeType.includes('javascript') ||
+        mimeType.includes('xml') ||
+        ['txt', 'csv', 'json', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'md', 'xml', 'yaml', 'yml', 'log', 'sql'].includes(ext)
+
+      if (isText) {
+        try {
+          textContent = await blob.text()
+        } catch {}
+      }
+
+      setPreviewData({
+        doc,
+        blobUrl,
+        contentType: mimeType,
+        textContent
+      })
+    } catch (err) {
+      let msg = 'Preview failed. Access denied or file unavailable.'
+      if (err.response?.data instanceof Blob) {
+        try {
+          const raw = await err.response.data.text()
+          const parsed = JSON.parse(raw)
+          if (parsed.message) msg = parsed.message
+        } catch {}
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message
+      }
+      alert(msg)
     }
   }
 
@@ -109,6 +163,7 @@ export default function SharedWithMePage() {
         <div className="grid-2">
           {sortedDocs.map(doc => {
             const actions = []
+            if (doc.canRead !== false) actions.push({ label: '👁️ Preview', onClick: () => handlePreview(doc) })
             if (doc.canDownload) actions.push({ label: '⬇ Download', onClick: () => handleDownload(doc) })
             if (doc.canEdit) actions.push({ label: '✏️ Edit', onClick: () => setEditDoc(doc) })
             actions.push({ label: '📋 Versions', onClick: () => setVersionsDoc(doc) })
@@ -128,6 +183,19 @@ export default function SharedWithMePage() {
       {editDoc && <EditDocumentModal doc={editDoc} onClose={() => setEditDoc(null)} onSuccess={() => { setEditDoc(null); fetchDocs() }} />}
       {activityDoc && <ActivityModal doc={activityDoc} onClose={() => setActivityDoc(null)} />}
       {versionsDoc && <VersionHistoryModal doc={versionsDoc} onClose={() => setVersionsDoc(null)} onRefresh={fetchDocs} />}
+
+      {previewData && (
+        <PreviewModal
+          doc={previewData.doc}
+          blobUrl={previewData.blobUrl}
+          contentType={previewData.contentType}
+          textContent={previewData.textContent}
+          onClose={() => {
+            if (previewData.blobUrl) URL.revokeObjectURL(previewData.blobUrl)
+            setPreviewData(null)
+          }}
+        />
+      )}
     </div>
   )
 }
