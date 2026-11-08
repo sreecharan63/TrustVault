@@ -70,7 +70,10 @@ export default function DocDetailModal({
     setError('')
     try {
       const res = await previewDocument(doc.id)
-      const url = URL.createObjectURL(res.data)
+      // Wrap in explicit MIME type blob so browser renders it natively in the tab
+      const mimeType = doc.contentType || res.headers?.['content-type'] || 'application/pdf'
+      const blob = new Blob([res.data], { type: mimeType })
+      const url = URL.createObjectURL(blob)
       window.open(url, '_blank')
     } catch (err) {
       setError(err.response?.data?.message || 'Preview failed. Access denied.')
