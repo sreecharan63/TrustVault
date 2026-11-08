@@ -87,3 +87,70 @@
   1. Created Flyway migration `V5__add_fulfilled_document_to_file_requests.sql` adding `fulfilled_document_id` foreign key.
   2. Extended `FileRequestService.java` so that when the admin approves, they attach the document, which is automatically saved and shared with the requester under their requested access specification.
 - **Commit Reference**: [`b103ee4`](https://github.com/sreecharan63/TrustVault/commit/b103ee4) — *feat: enable admin to accept requests by attaching and sending the file directly to the user*
+
+---
+
+### Entry 7: 2026-11-08 — Database Migration Resilience: Automated Flyway Repair Strategy
+- **Prompt to AI**:  
+  *"Implement password reset tokens with timed expiry and add Document Owner and Viewer roles to the system."*
+- **What it produced**:  
+  The AI added Flyway migrations `V6__create_password_reset_tokens.sql` and `V7__add_roles_document_owner_and_viewer.sql`. However, when deployed to Render, Flyway failed validation on boot because a previous interrupted deployment left an unrecovered row in `flyway_schema_history`, causing Spring Boot to exit with status 1 on startup.
+- **What was wrong with it**:  
+  Flyway default behavior halts the entire application on any schema validation discrepancy or failed migration attempt until manual database intervention (`flyway repair`). In a headless cloud environment (Render), this permanently locks the backend offline.
+- **What was done instead**:  
+  Implemented `FlywayConfig.java` registering a custom `FlywayMigrationStrategy` bean. On every application boot, it executes `flyway.repair()` to clear stale failures and align checksums before executing `flyway.migrate()`, guaranteeing automatic self-healing deployments.
+- **Commit Reference**: [`7fb54aa`](https://github.com/sreecharan63/TrustVault/commit/7fb54aa) — *fix(flyway): auto-repair schema history on startup, fix requests blank screen crash, modernize permission buttons, and enrich audit logs*
+
+---
+
+### Entry 8: 2026-11-08 — UI Reliability: React Pipeline Declaration Order & Humanized Audit Logs
+- **Prompt to AI**:  
+  *"Fix the requests section being completely blank, make audit logs understandable with document name and actor/recipient details, and let admin modify permissions right from the audit trail."*
+- **What it produced**:  
+  The AI attempted to sort and filter requests in `RequestsPage.jsx`, but declared `const sortedRequests = [...filteredRequests]` before `filteredRequests` was initialized, throwing a runtime `ReferenceError` that crashed the entire component tree into a blank screen.
+- **What was wrong with it**:  
+  Referencing computed state before definition unmounted the React app silently in production. Additionally, audit logs were displaying raw JSON strings for access details rather than human-readable indicators.
+- **What was done instead**:  
+  1. Reordered `RequestsPage.jsx` logic to declare `filteredRequests` before `sortedRequests` with defensive fallbacks for null timestamps.
+  2. Enriched audit log generation in `DocumentSharingService.java` to persist `filename` and `recipientName` into the audit details map.
+  3. Redesigned `AdminAuditPage.jsx` with structured columns (`Timestamp`, `Action Badge`, `Document`, `From ➔ To`, `Access Pills`, `Outcome`, and an inline `🔐 Change Perms` button connecting directly to `PermissionsModal.jsx`).
+  4. Redesigned `ShareModal.jsx` and `PermissionsModal.jsx` from plain HTML checkboxes to interactive glowing status button cards.
+- **Commit Reference**: [`7fb54aa`](https://github.com/sreecharan63/TrustVault/commit/7fb54aa) — *fix(flyway): auto-repair schema history on startup, fix requests blank screen crash, modernize permission buttons, and enrich audit logs*
+
+---
+
+### Entry 9: 2026-11-08 — Visual Design System: Cinematic Dark Mode & Browser Autofill Override
+- **Prompt to AI**:  
+  *"Apply Netflix theme colors to our project, add password view toggle in password fields, and fix white background showing in login inputs."*
+- **What it produced**:  
+  The AI added password toggle states and updated CSS variables. However, when users opened the page with Google Chrome or password managers, autofilled inputs turned bright white with black text, completely clashing with the dark theme.
+- **What was wrong with it**:  
+  Chromium-based browsers inject a user-agent stylesheet rule (`-webkit-box-shadow: 0 0 0 30px white inset !important`) whenever saved credentials are autofilled. Standard background CSS cannot override this without specific WebKit pseudo-selectors.
+- **What was done instead**:  
+  1. Added explicit `-webkit-autofill` overrides in `index.css` using `box-shadow: 0 0 0 1000px #111111 inset !important` and `-webkit-text-fill-color: #ffffff !important` with a `50000s` transition delay to permanently lock autofill inputs in dark mode.
+  2. Integrated `Eye` and `EyeOff` icons from `lucide-react` across Login, Register, and Forgot Password inputs.
+  3. Created high-resolution SVG favicon (`favicon.svg`) and brand component `TrustVaultLogo.jsx` featuring an outer Netflix Red cyber shield with glowing micro-nodes, circular vault door dial, and central lock core.
+- **Commit References**:  
+  - [`2a59168`](https://github.com/sreecharan63/TrustVault/commit/2a59168) — *feat(theme): apply official Netflix dark and red cinematic theme across TrustVault UI*  
+  - [`5cf3862`](https://github.com/sreecharan63/TrustVault/commit/5cf3862) — *feat(auth): add show/hide password toggle with Eye/EyeOff icons across all password fields*  
+  - [`5b263d3`](https://github.com/sreecharan63/TrustVault/commit/5b263d3) — *fix(css): override browser autofill white background to maintain dark theme across all inputs*  
+  - [`be51b4e`](https://github.com/sreecharan63/TrustVault/commit/be51b4e) — *feat(branding): add custom digital protection vault logo, favicon, and brand subtitle across UI*
+
+---
+
+### Entry 10: 2026-11-08 — Compliance & Usability: Audit Log Exports & Card Hover Highlights
+- **Prompt to AI**:  
+  *"Add an upload option in share by me section, add audit download option and highlight newly created audits, and when I hover the cards the borders need to be highlighted with the theme."*
+- **What it produced**:  
+  The AI added basic download buttons and hover styles.
+- **What was wrong with it**:  
+  Audit logs had no client-side export parsing, requiring raw server responses. New audit records had no distinction from historical logs, making ongoing operational monitoring tedious.
+- **What was done instead**:  
+  1. In `SharedByMePage.jsx`, added `📤 Upload & Share` with automatic chaining: uploading a document immediately triggers `ShareModal.jsx` for the newly created file.
+  2. In `AdminAuditPage.jsx`, added client-side **`📥 Download Audit CSV`** and **`📥 Export JSON`** generating compliant export files respecting active filter parameters.
+  3. Implemented unread audit tracking comparing timestamps against `localStorage` last-seen time, displaying a **`NEW`** glowing badge pill and ambient Netflix Red gradient row highlight for recent audit events.
+  4. Updated `index.css` and `DocumentCard.jsx` with smooth 3D lift (`translateY(-3px)`) and glowing Netflix Red border highlights (`border-color: #E50914 !important; box-shadow: 0 8px 26px rgba(229, 9, 20, 0.35) !important`) on card hover.
+- **Commit References**:  
+  - [`f170a89`](https://github.com/sreecharan63/TrustVault/commit/f170a89) — *feat(shared-by-me): add upload and share option with instant share modal chaining*  
+  - [`f0b6f80`](https://github.com/sreecharan63/TrustVault/commit/f0b6f80) — *feat(audit): add CSV/JSON audit log download export and highlight newly created audits with Netflix Red glowing indicator*  
+  - [`9420f80`](https://github.com/sreecharan63/TrustVault/commit/9420f80) — *feat(ui): add theme border highlight and subtle glow effect when hovering over cards*

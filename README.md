@@ -9,7 +9,7 @@ TrustVault is an enterprise document security and sharing platform designed arou
 | Component | Platform | Live URL / Connection |
 |---|---|---|
 | **Frontend UI** | **Vercel** (Edge CDN) | **[https://trust-vault-mu.vercel.app](https://trust-vault-mu.vercel.app)** |
-| **Backend REST API** | **Render** (Java 21 / Docker) | **[https://trustvault-16f1.onrender.com](https://trustvault-16f1.onrender.com)** |
+| **Backend REST API** | **Render** (Java 21 / Spring Boot 4) | **[https://trustvault-16f1.onrender.com](https://trustvault-16f1.onrender.com)** |
 | **Managed Database** | **Neon** (PostgreSQL 17.11) | `ep-old-bird-bdzbu0as.c-8.us-east-2.aws.neon.tech` |
 | **Source Repository** | **GitHub** (Public) | **[https://github.com/sreecharan63/TrustVault](https://github.com/sreecharan63/TrustVault)** |
 
@@ -21,9 +21,9 @@ To test all permission boundaries, cross-tenant isolation, and administrative co
 
 | Role | Email Address | Password | Permissions & Intended Test Workflow |
 |---|---|---|---|
-| **Administrator** | `test.admin@example.com` | `Password123!` | System officer with full rights to control all documents, permissions, and audit logs. Can view, download, edit, share, and delete any document across the platform, inspect the global immutable audit trail (`/admin/audit`), review file access requests (`/requests`), and fulfill requests. |
-| **Document Owner** | `test.user.a@example.com` | `Password123!` | Document owner. Can upload files, create new versions, grant/revoke permissions to named users, and view document-level activity. |
-| **Viewer** | `test.user.b@example.com` | `Password123!` | Recipient. Can view and download shared files under **Shared With Me**, request unshared files from Admin, and cannot edit/delete files without explicit grants. |
+| **Administrator** | `test.admin@example.com` | `Password123!` | System officer with full rights to control all documents, permissions, and audit logs. Can view, download, edit, share, and delete any document across the platform, inspect the global immutable audit trail (`/admin/audit`), export audit logs to CSV/JSON, modify permissions directly from the audit log, and fulfill file access requests (`/requests`). |
+| **Document Owner** | `test.user.a@example.com` | `Password123!` | Document owner. Can upload files, create new versions, grant/revoke permissions to named users, upload & share in a single chained flow, and view document-level activity. |
+| **Viewer** | `test.user.b@example.com` | `Password123!` | Recipient. Can view and download shared files under **Shared With Me**, request unshared files from Admin, and is strictly restricted from uploading documents or modifying ungranted files. |
 
 *(You can also click **Create Account** on the login page to register your own custom user with at least a 12-character password).*
 
@@ -44,16 +44,20 @@ To test all permission boundaries, cross-tenant isolation, and administrative co
    - PostgreSQL kernel trigger `trg_audit_logs_immutable` executes `RAISE EXCEPTION` on any direct `UPDATE` or `DELETE` attempt against `audit_logs`.
    - Denied access attempts are committed independently via `@Transactional(propagation = Propagation.REQUIRES_NEW)` so failed attacks are always audited.
 
+4. **Self-Healing Flyway Migrations**:
+   - Automated `FlywayMigrationStrategy` runs `flyway.repair()` prior to `flyway.migrate()` on application boot, preventing cloud startup failures caused by stale migration locks or checksum discrepancies.
+
 ---
 
-## 👥 The Three Roles
+## 👥 Three-Tier Role System
 
 ```
                       ┌────────────────────────────────────────┐
                       │              ADMINISTRATOR             │
                       │ • Full Rights to Control All Documents │
                       │ • View, Download, Edit, Share, Delete  │
-                      │ • Global Audit Trail Inspection        │
+                      │ • Global Audit Inspection & CSV Export │
+                      │ • Direct Inline Permission Management  │
                       │ • Access Request Queue & Fulfillment   │
                       └──────────────────┬─────────────────────┘
                                          │
@@ -61,11 +65,26 @@ To test all permission boundaries, cross-tenant isolation, and administrative co
                  │                                               │
   ┌──────────────▼─────────────┐                  ┌──────────────▼─────────────┐
   │       DOCUMENT OWNER       │                  │           VIEWER           │
-  │ • Uploads & Versions File  │                  │ • Reads & Downloads File   │
-  │ • Grants/Revokes Share     │                  │ • Submits Access Request   │
-  │ • Soft-Deletes Document    │                  │ • Denied Edit/Delete/Share │
+  │ • Uploads & Versions Files │                  │ • Reads & Downloads Files  │
+  │ • Grants/Revokes Shares    │                  │ • Submits Access Requests  │
+  │ • Upload & Share Chaining  │                  │ • Blocked from Uploading   │
+  │ • Soft-Deletes Documents   │                  │ • Denied Edit/Delete/Share │
   └────────────────────────────┘                  └────────────────────────────┘
 ```
+
+---
+
+## 🎨 Theme & User Experience Enhancements
+
+- **Netflix Dark Aesthetic**: Built with a sleek dark palette (`#141414` canvas, `#181818` card surfaces, and `#E50914` signature red accent).
+- **Interactive Card Hover**: All cards and document cards lift smoothly (`translateY(-3px)`) and glow with the red theme border on hover.
+- **Digital Protection Vault Emblem**: Custom SVG shield emblem and browser favicon (`favicon.svg`) with cyber circuit traces, circular vault door dial, and central lock core.
+- **Show/Hide Password View**: Password toggle with `Eye` / `EyeOff` icons across Login, Register, and Forgot Password screens.
+- **Browser Autofill Protection**: Overridden Chromium user-agent styles to prevent browser password managers from turning autofilled inputs white.
+- **Unread Notification Badges**: Dynamic counters in the top navigation bar alerting users to new or updated documents and requests.
+- **Audit Log CSV & JSON Export**: One-click download of the complete audit trail directly into CSV or JSON formats.
+- **New Audit Event Highlighting**: Identifies and highlights new audit records with a glowing `NEW` badge and red accent border.
+- **Inline Admin Permission Control**: Allows administrators to adjust permissions directly from any audit row via `🔐 Change Perms`.
 
 ---
 
@@ -101,7 +120,7 @@ cd backend
 ## 📁 Repository Deliverables Index
 
 - 🛡️ **[THREATS.md](THREATS.md)**: Comprehensive STRIDE threat model, code defenses, knowingly accepted risks, and mitigation verification.
-- 🤖 **[PROMPTS.md](PROMPTS.md)**: 6 dated entries detailing AI steering, identified hallucinations/flaws, and manual engineering corrections.
+- 🤖 **[PROMPTS.md](PROMPTS.md)**: 10 dated entries detailing AI steering, identified hallucinations/flaws, and manual engineering corrections.
 - 📋 **[docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md)**: Full REST API specification with headers, request bodies, and sample responses.
 - 📊 **[docs/MIGRATION_VERIFICATION_REPORT.md](docs/MIGRATION_VERIFICATION_REPORT.md)**: 100% database parity verification report between local PostgreSQL 17 and Neon Cloud.
 - 💾 **[database/backups/BACKUP_MANIFEST.md](database/backups/BACKUP_MANIFEST.md)**: Cryptographic SHA-256 manifest of the database archive.
@@ -118,7 +137,7 @@ cd backend
 ### 2. Backend Setup
 ```bash
 cd backend
-# Run Spring Boot (Flyway automatically runs migrations V1 through V7)
+# Run Spring Boot (Flyway automatically repairs and runs migrations V1 through V7)
 ./mvnw spring-boot:run
 ```
 
