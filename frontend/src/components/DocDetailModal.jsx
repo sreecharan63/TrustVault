@@ -170,14 +170,14 @@ export default function DocDetailModal({
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={{ maxWidth: 620, padding: '2rem' }}>
+      <div className="modal" style={{ maxWidth: 490, width: '92%', padding: '1.25rem' }}>
         {/* Header */}
-        <div className="modal-title" style={{ marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="modal-title" style={{ marginBottom: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
             <div style={{
-              width: 44,
-              height: 44,
-              borderRadius: 8,
+              width: 36,
+              height: 36,
+              borderRadius: 7,
               background: 'rgba(255, 255, 255, 0.04)',
               border: '1px solid #2e2e2e',
               display: 'flex',
@@ -185,42 +185,50 @@ export default function DocDetailModal({
               justifyContent: 'center',
               flexShrink: 0
             }}>
-              <FileIcon contentType={doc.contentType} filename={doc.originalFilename} size={24} />
+              <FileIcon contentType={doc.contentType} filename={doc.originalFilename} size={18} />
             </div>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#ffffff' }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{
+                fontWeight: 700,
+                fontSize: '1rem',
+                color: '#ffffff',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: '340px'
+              }} title={doc.originalFilename}>
                 {doc.originalFilename}
               </div>
-              <div className="text-muted" style={{ fontSize: '0.8rem', fontWeight: 400 }}>
-                {fmtSize(doc.fileSize)} • Version {doc.currentVersionNumber || 1} • {fmtDate(doc.createdAt)}
+              <div className="text-muted" style={{ fontSize: '0.74rem', fontWeight: 400 }}>
+                {fmtSize(doc.fileSize)} • v{doc.currentVersionNumber || 1} • {fmtDate(doc.createdAt)}
               </div>
             </div>
           </div>
           <button
             className="btn btn-ghost btn-sm"
             onClick={onClose}
-            style={{ borderRadius: '50%', width: 32, height: 32, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ borderRadius: '50%', width: 28, height: 28, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             title="Close"
           >
-            <X size={16} />
+            <X size={15} />
           </button>
         </div>
 
-        {error && <div className="error-box" style={{ marginBottom: '1.25rem' }}>{error}</div>}
+        {error && <div className="error-box" style={{ marginBottom: '0.75rem', fontSize: '0.78rem', padding: '0.5rem 0.75rem' }}>{error}</div>}
 
         {/* Document Metadata Badges */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.25rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.75rem', alignItems: 'center', fontSize: '0.72rem' }}>
           {doc.category && (
-            <span className="badge badge-neutral" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-              <Folder size={12} strokeWidth={2} /> {doc.category}
+            <span className="badge badge-neutral" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', padding: '0.15rem 0.45rem' }}>
+              <Folder size={11} strokeWidth={2} /> {doc.category}
             </span>
           )}
           {doc.tags && doc.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => (
-            <span key={t} className="badge badge-neutral">#{t}</span>
+            <span key={t} className="badge badge-neutral" style={{ fontSize: '0.7rem', padding: '0.15rem 0.45rem' }}>#{t}</span>
           ))}
           {doc.ownerEmail && (
-            <span className="badge badge-neutral" style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-              <User size={12} strokeWidth={2} /> Owner: {doc.ownerName || doc.ownerEmail}
+            <span className="badge badge-neutral" style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', padding: '0.15rem 0.45rem' }}>
+              <User size={11} strokeWidth={2} /> {doc.ownerName || doc.ownerEmail}
             </span>
           )}
         </div>
@@ -229,13 +237,13 @@ export default function DocDetailModal({
         <div style={{
           background: 'rgba(255, 255, 255, 0.03)',
           border: '1px solid #2e2e2e',
-          borderRadius: 'var(--radius)',
-          padding: '1.15rem',
-          marginBottom: '1.5rem'
+          borderRadius: '8px',
+          padding: '0.7rem 0.8rem',
+          marginBottom: '0.85rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-              <Lock size={15} strokeWidth={2} color="var(--accent)" /> Active Access Permissions
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Lock size={13} strokeWidth={2} color="var(--accent)" /> Active Access Permissions
             </div>
             {hasFullRights && (
               <span className="badge" style={{
@@ -244,32 +252,34 @@ export default function DocDetailModal({
                 border: '1px solid rgba(229, 9, 20, 0.4)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.35rem'
+                gap: '0.25rem',
+                fontSize: '0.68rem',
+                padding: '0.15rem 0.45rem'
               }}>
-                {isAdmin ? <Shield size={12} strokeWidth={2.2} /> : <ShieldCheck size={12} strokeWidth={2.2} />}
-                {isAdmin ? 'Administrator Control' : 'Document Owner'}
+                {isAdmin ? <Shield size={11} strokeWidth={2.2} /> : <ShieldCheck size={11} strokeWidth={2.2} />}
+                {isAdmin ? 'Admin Control' : 'Owner'}
               </span>
             )}
           </div>
 
           {/* 3 Status Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.45rem' }}>
             {/* Read */}
             <div style={{
               background: canRead ? 'rgba(70, 211, 105, 0.12)' : 'rgba(255, 255, 255, 0.02)',
               border: canRead ? '1px solid rgba(70, 211, 105, 0.35)' : '1px solid #2e2e2e',
               borderRadius: '6px',
-              padding: '0.75rem',
+              padding: '0.4rem 0.35rem',
               textAlign: 'center'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem' }}>
-                {canRead ? <Check size={18} strokeWidth={2.5} color="#46d369" /> : <X size={18} strokeWidth={2.5} color="#666666" />}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.15rem' }}>
+                {canRead ? <Check size={14} strokeWidth={2.5} color="#46d369" /> : <X size={14} strokeWidth={2.5} color="#666666" />}
               </div>
-              <div style={{ fontWeight: 700, fontSize: '0.8rem', color: canRead ? '#46d369' : 'var(--text-muted)' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.74rem', color: canRead ? '#46d369' : 'var(--text-muted)' }}>
                 Read Access
               </div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                {canRead ? 'Can view & read' : 'No read access'}
+              <div style={{ fontSize: '0.64rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                {canRead ? 'View & read' : 'Restricted'}
               </div>
             </div>
 
@@ -278,17 +288,17 @@ export default function DocDetailModal({
               background: canEdit ? 'rgba(229, 160, 13, 0.12)' : 'rgba(255, 255, 255, 0.02)',
               border: canEdit ? '1px solid rgba(229, 160, 13, 0.35)' : '1px solid #2e2e2e',
               borderRadius: '6px',
-              padding: '0.75rem',
+              padding: '0.4rem 0.35rem',
               textAlign: 'center'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem' }}>
-                {canEdit ? <Check size={18} strokeWidth={2.5} color="#e5a00d" /> : <X size={18} strokeWidth={2.5} color="#666666" />}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.15rem' }}>
+                {canEdit ? <Check size={14} strokeWidth={2.5} color="#e5a00d" /> : <X size={14} strokeWidth={2.5} color="#666666" />}
               </div>
-              <div style={{ fontWeight: 700, fontSize: '0.8rem', color: canEdit ? '#e5a00d' : 'var(--text-muted)' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.74rem', color: canEdit ? '#e5a00d' : 'var(--text-muted)' }}>
                 Edit Access
               </div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                {canEdit ? 'Can modify file' : 'Read-only mode'}
+              <div style={{ fontSize: '0.64rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                {canEdit ? 'Can modify' : 'Read-only'}
               </div>
             </div>
 
@@ -297,34 +307,34 @@ export default function DocDetailModal({
               background: canDownload ? 'rgba(70, 211, 105, 0.12)' : 'rgba(255, 255, 255, 0.02)',
               border: canDownload ? '1px solid rgba(70, 211, 105, 0.35)' : '1px solid #2e2e2e',
               borderRadius: '6px',
-              padding: '0.75rem',
+              padding: '0.4rem 0.35rem',
               textAlign: 'center'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem' }}>
-                {canDownload ? <Check size={18} strokeWidth={2.5} color="#46d369" /> : <X size={18} strokeWidth={2.5} color="#666666" />}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.15rem' }}>
+                {canDownload ? <Check size={14} strokeWidth={2.5} color="#46d369" /> : <X size={14} strokeWidth={2.5} color="#666666" />}
               </div>
-              <div style={{ fontWeight: 700, fontSize: '0.8rem', color: canDownload ? '#46d369' : 'var(--text-muted)' }}>
-                Download Access
+              <div style={{ fontWeight: 700, fontSize: '0.74rem', color: canDownload ? '#46d369' : 'var(--text-muted)' }}>
+                Download
               </div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                {canDownload ? 'Can download bytes' : 'Download restricted'}
+              <div style={{ fontSize: '0.64rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                {canDownload ? 'Allowed' : 'Restricted'}
               </div>
             </div>
           </div>
 
           {/* Active Collaborators Count for Owner/Admin */}
           {hasFullRights && collaborators.length > 0 && (
-            <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Users size={13} strokeWidth={2} /> <strong>{collaborators.length}</strong> collaborator{collaborators.length > 1 ? 's' : ''} have active shared access.
+            <div style={{ marginTop: '0.5rem', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                <Users size={12} strokeWidth={2} /> <strong>{collaborators.length}</strong> collaborator{collaborators.length > 1 ? 's' : ''} with active access.
               </span>
               <button
                 type="button"
                 className="btn btn-ghost btn-sm"
-                style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                style={{ fontSize: '0.7rem', padding: '0.15rem 0.45rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
                 onClick={() => { onClose(); onOpenPerms(doc); }}
               >
-                <Lock size={12} strokeWidth={2} /> Manage Collaborators →
+                <Lock size={11} strokeWidth={2} /> Manage Collaborators →
               </button>
             </div>
           )}
@@ -332,20 +342,20 @@ export default function DocDetailModal({
 
         {/* Section 2: Choose What You Want To Do (Actions Hub) */}
         <div>
-          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#ffffff', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Sparkles size={14} strokeWidth={2} color="var(--accent)" /> Available Actions:
+          <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#ffffff', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <Sparkles size={13} strokeWidth={2} color="var(--accent)" /> Available Actions:
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.45rem' }}>
             {/* Download Button */}
             <button
               type="button"
               className="btn btn-primary"
               disabled={!canDownload || !!loadingAction}
               onClick={handleDownload}
-              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+              style={{ justifyContent: 'center', padding: '0.45rem 0.65rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              <Download size={15} strokeWidth={2} />
+              <Download size={13} strokeWidth={2} />
               {loadingAction === 'download' ? 'Downloading...' : 'Download Document'}
             </button>
 
@@ -355,9 +365,9 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!canRead || !!loadingAction}
               onClick={handlePreview}
-              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+              style={{ justifyContent: 'center', padding: '0.45rem 0.65rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              <Eye size={15} strokeWidth={2} />
+              <Eye size={13} strokeWidth={2} />
               {loadingAction === 'preview' ? 'Opening...' : 'Preview / Open'}
             </button>
 
@@ -367,9 +377,9 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!canEdit || !!loadingAction}
               onClick={() => { onClose(); onOpenEdit(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+              style={{ justifyContent: 'center', padding: '0.45rem 0.65rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              <Edit3 size={15} strokeWidth={2} />
+              <Edit3 size={13} strokeWidth={2} />
               Edit & New Version
             </button>
 
@@ -379,9 +389,9 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!hasFullRights || !!loadingAction}
               onClick={() => { onClose(); onOpenShare(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+              style={{ justifyContent: 'center', padding: '0.45rem 0.65rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              <Share2 size={15} strokeWidth={2} />
+              <Share2 size={13} strokeWidth={2} />
               Share with Others
             </button>
 
@@ -391,9 +401,9 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!hasFullRights || !!loadingAction}
               onClick={() => { onClose(); onOpenPerms(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+              style={{ justifyContent: 'center', padding: '0.45rem 0.65rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              <Lock size={15} strokeWidth={2} />
+              <Lock size={13} strokeWidth={2} />
               Manage Permissions
             </button>
 
@@ -403,9 +413,9 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!canRead || !!loadingAction}
               onClick={() => { onClose(); onOpenVersions(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+              style={{ justifyContent: 'center', padding: '0.45rem 0.65rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              <History size={15} strokeWidth={2} />
+              <History size={13} strokeWidth={2} />
               Version History
             </button>
 
@@ -415,9 +425,9 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!hasFullRights && !canRead}
               onClick={() => { onClose(); onOpenActivity(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+              style={{ justifyContent: 'center', padding: '0.45rem 0.65rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              <Activity size={15} strokeWidth={2} />
+              <Activity size={13} strokeWidth={2} />
               Audit Activity Trail
             </button>
 
@@ -428,9 +438,9 @@ export default function DocDetailModal({
                 className="btn btn-danger"
                 disabled={!!loadingAction}
                 onClick={handleDelete}
-                style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+                style={{ justifyContent: 'center', padding: '0.45rem 0.65rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
               >
-                <Trash2 size={15} strokeWidth={2} />
+                <Trash2 size={13} strokeWidth={2} />
                 {loadingAction === 'delete' ? 'Deleting...' : 'Delete Document'}
               </button>
             )}

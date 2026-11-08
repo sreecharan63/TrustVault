@@ -265,4 +265,21 @@
      - `AdminAuditPage.jsx`: Replaced audit event emojis, export buttons, and table indicators with vector line icons.
   4. Verified complete elimination of Unicode emojis with automated regex scanning and confirmed 100% successful production build (`npm run build`).
 - **Commit References**:  
-  - [`73cad2d`](https://github.com/sreecharan63/TrustVault/commit/73cad2d) — *feat(ui): replace all emoji icons across components and pages with Lucide vector design line icons*
+  - [`e099fc3`](https://github.com/sreecharan63/TrustVault/commit/e099fc3) — *feat(ui): replace all emoji icons across components and pages with Lucide vector design line icons*
+
+---
+
+### Entry 16: 2026-11-09 — Document Detail & Actions Hub Modal Size Reduction
+- **Prompt to AI**:  
+  *"reduce the size of this popup"*
+- **What was wrong with it**:  
+  The `DocDetailModal.jsx` had a `maxWidth` of `620px` and generous outer padding of `2rem` (32px), with `1.25rem`–`1.5rem` section spacing. On standard laptops and 1080p desktop viewports, it stretched excessively across the screen and vertically consumed unnecessary space.
+- **What was done instead**:  
+  1. Reduced `maxWidth` from `620px` to `490px` (`width: '92%'`) and outer padding from `2rem` to `1.25rem` (20px).
+  2. Scaled header icon container down from `44x44` to `36x36` with icon `18px`, reduced title to `1rem` with neat ellipsis truncation.
+  3. Made metadata and tag badges compact with `0.7rem` font size and `0.35rem` gap.
+  4. Compacted Section 1 ("Active Access Permissions") padding from `1.15rem` to `0.7rem 0.8rem`, reduced permission status cards padding to `0.4rem 0.35rem`, and adjusted check/x indicator icons to `14px`.
+  5. Compacted Section 2 ("Available Actions") 2-column grid button padding from `0.75rem` down to `0.45rem 0.65rem` with `fontSize: '0.8rem'` and `13px` stroke icons.
+  6. Overall footprint reduced by ~40% vertically and ~25% horizontally, rendering a compact, balanced dialog.
+- **Commit References**:  
+  - [`9ad4960`](https://github.com/sreecharan63/TrustVault/commit/9ad4960) — *style(ui): compact DocDetailModal size, paddings, and button grid*
