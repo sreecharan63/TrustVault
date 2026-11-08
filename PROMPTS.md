@@ -191,4 +191,4 @@
   4. Added `DOCUMENT_PREVIEW` success audit logging in `DocumentService.java` and translated storage `IOException` to clean HTTP 404 with helpful guidance.
   5. Added one-click preview actions in `MyDocumentsPage.jsx` and `SharedWithMePage.jsx`.
 - **Commit References**:  
-  - `Upcoming Commit` — *fix(preview): add in-app preview modal viewer, record preview audit logs, and improve missing file handling*
+  - [`ef4499d`](https://github.com/sreecharan63/TrustVault/commit/ef4499d) — *fix(preview): add in-app preview modal viewer, record preview audit logs, and improve missing file handling*
