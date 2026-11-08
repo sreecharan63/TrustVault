@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getDashboardStats, getMyDocuments } from '../api/documents.js'
+import { getDashboardStats } from '../api/documents.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import DocumentCard from '../components/DocumentCard.jsx'
+import DocDetailModal from '../components/DocDetailModal.jsx'
+import EditDocumentModal from '../components/EditDocumentModal.jsx'
+import ShareModal from '../components/ShareModal.jsx'
+import PermissionsModal from '../components/PermissionsModal.jsx'
+import VersionHistoryModal from '../components/VersionHistoryModal.jsx'
+import ActivityModal from '../components/ActivityModal.jsx'
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -10,18 +16,28 @@ export default function DashboardPage() {
   const [recent, setRecent] = useState([])
   const [loading, setLoading] = useState(true)
 
+  // Interactive document modals
+  const [selectedDoc, setSelectedDoc] = useState(null)
+  const [editDoc, setEditDoc] = useState(null)
+  const [shareDoc, setShareDoc] = useState(null)
+  const [permsDoc, setPermsDoc] = useState(null)
+  const [versionsDoc, setVersionsDoc] = useState(null)
+  const [activityDoc, setActivityDoc] = useState(null)
+
+  const fetchDashboardData = async () => {
+    try {
+      const statsRes = await getDashboardStats()
+      setStats(statsRes.data)
+      setRecent(statsRes.data?.recentDocuments || [])
+    } catch (err) {
+      console.error('Dashboard load error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
-    (async () => {
-      try {
-        const statsRes = await getDashboardStats()
-        setStats(statsRes.data)
-        setRecent(statsRes.data?.recentDocuments || [])
-      } catch (err) {
-        console.error('Dashboard load error:', err)
-      } finally {
-        setLoading(false)
-      }
-    })()
+    fetchDashboardData()
   }, [])
 
   if (loading) return <div className="page"><div className="spinner" /></div>
@@ -51,22 +67,96 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="flex-between mb-1" style={{ marginTop: '2rem' }}>
-        <h2 style={{ fontSize: '1.15rem', fontWeight: 600 }}>Recent Documents</h2>
+      <div className="flex-between mb-1" style={{ marginTop: '2.5rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#ffffff', margin: 0 }}>
+            Recent Documents
+          </h2>
+          <p className="text-muted" style={{ fontSize: '0.85rem', marginTop: '0.2rem' }}>
+            Click any document to inspect active permissions and choose an action.
+          </p>
+        </div>
         <Link to="/documents" className="btn btn-ghost btn-sm">View all →</Link>
       </div>
 
       {recent.length === 0 ? (
         <div className="empty-state">
           <p>No documents yet.</p>
-          <Link to="/documents" className="btn btn-primary" style={{ marginTop: '1rem' }}>📤 Upload your first document</Link>
+          <Link to="/documents" className="btn btn-primary" style={{ marginTop: '1rem' }}>
+            📤 Upload your first document
+          </Link>
         </div>
       ) : (
         <div className="grid-2">
           {recent.map(doc => (
-            <DocumentCard key={doc.id} doc={doc} actions={[]} />
+            <DocumentCard
+              key={doc.id}
+              doc={doc}
+              onClick={() => setSelectedDoc(doc)}
+              actions={[
+                {
+                  label: '🔐 Permissions & Actions',
+                  onClick: () => setSelectedDoc(doc),
+                  variant: 'btn-primary'
+                }
+              ]}
+            />
           ))}
         </div>
+      )}
+
+      {/* Document Permissions & Action Hub Modal */}
+      {selectedDoc && (
+        <DocDetailModal
+          doc={selectedDoc}
+          onClose={() => setSelectedDoc(null)}
+          onRefresh={fetchDashboardData}
+          onOpenEdit={(d) => setEditDoc(d)}
+          onOpenShare={(d) => setShareDoc(d)}
+          onOpenPerms={(d) => setPermsDoc(d)}
+          onOpenVersions={(d) => setVersionsDoc(d)}
+          onOpenActivity={(d) => setActivityDoc(d)}
+        />
+      )}
+
+      {/* Action Modals invoked from the Hub */}
+      {editDoc && (
+        <EditDocumentModal
+          doc={editDoc}
+          onClose={() => setEditDoc(null)}
+          onSuccess={() => { setEditDoc(null); fetchDashboardData(); }}
+        />
+      )}
+
+      {shareDoc && (
+        <ShareModal
+          doc={shareDoc}
+          onClose={() => setShareDoc(null)}
+          onSuccess={() => { setShareDoc(null); fetchDashboardData(); }}
+        />
+      )}
+
+      {permsDoc && (
+        <PermissionsModal
+          doc={permsDoc}
+          onClose={() => setPermsDoc(null)}
+          onRefresh={fetchDashboardData}
+        />
+      )}
+
+      {versionsDoc && (
+        <VersionHistoryModal
+          doc={versionsDoc}
+          onClose={() => setVersionsDoc(null)}
+          onRefresh={fetchDashboardData}
+        />
+      )}
+
+      {activityDoc && (
+        <ActivityModal
+          doc={activityDoc}
+          onClose={() => setActivityDoc(null)}
+        />
       )}
     </div>
   )

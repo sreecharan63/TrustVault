@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function DocumentCard({ doc, actions, isUpdated }) {
+export default function DocumentCard({ doc, actions, isUpdated, onClick }) {
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : '-'
   const fmtTime = (d) => d ? new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
   const fmtSize = (bytes) => {
@@ -25,11 +25,13 @@ export default function DocumentCard({ doc, actions, isUpdated }) {
   return (
     <div
       className="card document-card"
+      onClick={onClick}
       style={{
         display: 'flex',
         flexDirection: 'column',
         gap: '0.75rem',
         position: 'relative',
+        cursor: onClick ? 'pointer' : 'default',
         ...(isUpdated ? {
           border: '1.5px solid var(--accent)',
           background: 'linear-gradient(135deg, rgba(229, 9, 20, 0.12) 0%, rgba(24, 24, 24, 0.98) 100%)',
@@ -106,7 +108,15 @@ export default function DocumentCard({ doc, actions, isUpdated }) {
       {actions && actions.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: 'auto', paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
           {actions.map((a, i) => (
-            <button key={i} className={`btn btn-sm ${a.variant || 'btn-ghost'}`} onClick={a.onClick} title={a.title || a.label}>
+            <button
+              key={i}
+              className={`btn btn-sm ${a.variant || 'btn-ghost'}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                a.onClick(e)
+              }}
+              title={a.title || a.label}
+            >
               {a.label}
             </button>
           ))}
