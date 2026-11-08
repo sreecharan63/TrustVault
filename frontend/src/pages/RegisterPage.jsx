@@ -39,12 +39,27 @@ export default function RegisterPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      <div className="card" style={{ width: '100%', maxWidth: 400 }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🔒</div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Create Account</h1>
-          <p className="text-muted">Join TrustVault</p>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem',
+      background: 'radial-gradient(ellipse at 50% 20%, rgba(229, 9, 20, 0.12) 0%, #141414 75%)'
+    }}>
+      <div className="card" style={{
+        width: '100%',
+        maxWidth: 440,
+        background: '#181818',
+        border: '1px solid #333333',
+        borderRadius: '8px',
+        padding: '2.25rem',
+        boxShadow: '0 12px 40px rgba(0, 0, 0, 0.85)'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.4rem', textShadow: '0 0 16px rgba(229, 9, 20, 0.4)' }}>🔒</div>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '0.02em', color: '#ffffff' }}>Create Account</h1>
+          <p className="text-muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Join the TrustVault platform</p>
         </div>
 
         {error && <div className="error-box">{error}</div>}
@@ -55,12 +70,12 @@ export default function RegisterPage() {
             <input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="John Doe" required autoFocus />
           </div>
           <div className="form-group">
-            <label className="form-label">Email</label>
+            <label className="form-label">Email Address</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
           </div>
           <div className="form-group">
             <label className="form-label">Account Role</label>
-            <select value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: 'var(--radius)', background: 'var(--bg3)', color: 'var(--text)', border: '1px solid var(--border)' }}>
+            <select value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius)', background: '#111111', color: 'var(--text)', border: '1px solid var(--border)' }}>
               <option value="DOCUMENT_OWNER">Document Owner (Upload, Version, Share & Manage)</option>
               <option value="VIEWER">Viewer (View & Download Shared Files, Request Files)</option>
             </select>
@@ -73,13 +88,13 @@ export default function RegisterPage() {
             <label className="form-label">Confirm Password</label>
             <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Re-enter password" required />
           </div>
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '0.5rem', justifyContent: 'center' }}>
-            {loading ? '⏳ Creating...' : '✨ Create Account'}
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '0.75rem', justifyContent: 'center', padding: '0.75rem' }}>
+            {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.9rem' }}>
-          Already have an account? <Link to="/login">Sign in</Link>
+        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+          Already have an account? <Link to="/login" style={{ color: '#ffffff', fontWeight: 600 }}>Sign in</Link>
         </p>
       </div>
     </div>

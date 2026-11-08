@@ -70,20 +70,20 @@ export default function SharedWithMePage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
-          borderRadius: '8px',
+          backgroundColor: 'rgba(229, 9, 20, 0.12)',
+          border: '1px solid rgba(229, 9, 20, 0.35)',
+          borderRadius: 'var(--radius)',
           padding: '0.65rem 1rem',
           marginBottom: '1rem',
-          color: '#34d399',
+          color: '#ffffff',
           fontSize: '0.875rem'
         }}>
           <span>
-            ✨ <strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with green highlight).
+            ✨ <strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with Netflix Red accent).
           </span>
           <button
             className="btn btn-sm"
-            style={{ background: '#10b981', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
             onClick={() => { markSectionSeen('sharedWithMe'); refreshCounts() }}
           >
             ✓ Mark as viewed

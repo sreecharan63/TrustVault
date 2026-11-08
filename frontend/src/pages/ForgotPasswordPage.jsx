@@ -63,16 +63,31 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      <div className="card" style={{ width: '100%', maxWidth: 420 }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🔑</div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Reset Password</h1>
-          <p className="text-muted">Recover access to your TrustVault account</p>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem',
+      background: 'radial-gradient(ellipse at 50% 20%, rgba(229, 9, 20, 0.12) 0%, #141414 75%)'
+    }}>
+      <div className="card" style={{
+        width: '100%',
+        maxWidth: 440,
+        background: '#181818',
+        border: '1px solid #333333',
+        borderRadius: '8px',
+        padding: '2.25rem',
+        boxShadow: '0 12px 40px rgba(0, 0, 0, 0.85)'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.4rem', textShadow: '0 0 16px rgba(229, 9, 20, 0.4)' }}>🔑</div>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '0.02em', color: '#ffffff' }}>Reset Password</h1>
+          <p className="text-muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Recover access to your TrustVault account</p>
         </div>
 
         {error && <div className="error-box" style={{ marginBottom: '1rem' }}>{error}</div>}
-        {success && <div style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid rgba(34, 197, 94, 0.3)', marginBottom: '1rem', fontSize: '0.9rem' }}>{success}</div>}
+        {success && <div style={{ background: 'rgba(70, 211, 105, 0.15)', color: 'var(--success)', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid rgba(70, 211, 105, 0.35)', marginBottom: '1rem', fontSize: '0.9rem' }}>{success}</div>}
 
         {step === 1 && (
           <form onSubmit={handleRequestToken}>
@@ -94,12 +109,12 @@ export default function ForgotPasswordPage() {
               type="submit"
               className="btn btn-primary"
               disabled={loading}
-              style={{ width: '100%', marginTop: '0.5rem', justifyContent: 'center' }}
+              style={{ width: '100%', marginTop: '0.75rem', justifyContent: 'center', padding: '0.75rem' }}
             >
-              {loading ? '⏳ Generating...' : '📩 Request Reset Token'}
+              {loading ? 'Generating...' : 'Request Reset Token'}
             </button>
-            <p style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.875rem' }}>
-              Remember your password? <Link to="/login">Sign in</Link>
+            <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem' }}>
+              Remember your password? <Link to="/login" style={{ color: '#ffffff', fontWeight: 600 }}>Sign in</Link>
             </p>
           </form>
         )}
@@ -142,13 +157,13 @@ export default function ForgotPasswordPage() {
               type="submit"
               className="btn btn-primary"
               disabled={loading}
-              style={{ width: '100%', marginTop: '0.5rem', justifyContent: 'center' }}
+              style={{ width: '100%', marginTop: '0.75rem', justifyContent: 'center', padding: '0.75rem' }}
             >
-              {loading ? '⏳ Updating...' : '🔒 Reset Password'}
+              {loading ? 'Updating...' : 'Reset Password'}
             </button>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.25rem', fontSize: '0.875rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontSize: '0.875rem' }}>
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep(1)}>← Back</button>
-              <Link to="/login" style={{ alignSelf: 'center' }}>Cancel</Link>
+              <Link to="/login" style={{ alignSelf: 'center', color: '#b3b3b3' }}>Cancel</Link>
             </div>
           </form>
         )}
@@ -161,7 +176,7 @@ export default function ForgotPasswordPage() {
             <button
               className="btn btn-primary"
               onClick={() => navigate('/login')}
-              style={{ width: '100%', justifyContent: 'center' }}
+              style={{ width: '100%', justifyContent: 'center', padding: '0.75rem' }}
             >
               Go to Sign In
             </button>

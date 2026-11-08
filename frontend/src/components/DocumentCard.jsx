@@ -32,9 +32,9 @@ export default function DocumentCard({ doc, actions, isUpdated }) {
         position: 'relative',
         transition: 'all 0.25s ease',
         ...(isUpdated ? {
-          border: '1.5px solid #10b981',
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.09) 0%, rgba(15, 23, 42, 0.95) 100%)',
-          boxShadow: '0 0 16px rgba(16, 185, 129, 0.22)'
+          border: '1.5px solid var(--accent)',
+          background: 'linear-gradient(135deg, rgba(229, 9, 20, 0.12) 0%, rgba(24, 24, 24, 0.98) 100%)',
+          boxShadow: '0 0 16px rgba(229, 9, 20, 0.35)'
         } : {})
       }}
     >
@@ -50,14 +50,14 @@ export default function DocumentCard({ doc, actions, isUpdated }) {
           zIndex: 2
         }}>
           <span style={{
-            background: '#10b981',
+            background: 'var(--accent)',
             color: '#ffffff',
             fontSize: '0.7rem',
             fontWeight: 800,
             letterSpacing: '0.04em',
             padding: '0.2rem 0.6rem',
             borderRadius: '9999px',
-            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.5)',
+            boxShadow: '0 2px 8px rgba(229, 9, 20, 0.6)',
             textTransform: 'uppercase'
           }}>
             ✨ {isNew ? 'New' : 'Updated'}
@@ -76,7 +76,7 @@ export default function DocumentCard({ doc, actions, isUpdated }) {
             <span>{fmtSize(doc.fileSize)}</span>
             <span>Created {fmtDate(doc.createdAt)}</span>
             {doc.updatedAt && doc.updatedAt !== doc.createdAt && (
-              <span style={{ color: isUpdated ? '#34d399' : 'inherit', fontWeight: isUpdated ? 600 : 'normal' }}>
+              <span style={{ color: isUpdated ? '#ff6b6b' : 'inherit', fontWeight: isUpdated ? 600 : 'normal' }}>
                 Updated {fmtDate(doc.updatedAt)} {fmtTime(doc.updatedAt)}
               </span>
             )}
