@@ -79,6 +79,7 @@
 - [x] **Card Hover Highlights**: Smooth 3D lift (`translateY(-3px)`) with glowing red theme border on hover.
 - [x] **Digital Protection Vault Emblem**: Custom vector SVG shield emblem and browser favicon (`favicon.svg`) with cyber circuit traces, circular vault door dial, and central lock core.
 - [x] **In-App Document Preview Lightbox**: Embedded multi-format viewer supporting native PDFs, images (with zoom controls), formatted code/text/csv viewers, media players, and direct browser tab links.
+- [x] **Database-Backed Persistent Blob Storage (`document_blobs`)**: Automatic dual-storage to disk and PostgreSQL so documents are never lost across Render cloud container restarts or redeployments.
 - [x] **Real-Time Unread Counters**: Navbar badges showing unread document updates and file requests.
 
 ---

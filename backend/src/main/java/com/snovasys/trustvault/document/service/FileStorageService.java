@@ -1,6 +1,8 @@
 package com.snovasys.trustvault.document.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,13 +20,16 @@ import java.util.UUID;
 public class FileStorageService {
 
     private final Path storageDirectory;
+    private final JdbcTemplate jdbcTemplate;
 
     public FileStorageService(
-            @Value("${trustvault.storage.location}") String storageLocation) {
+            @Value("${trustvault.storage.location}") String storageLocation,
+            @Autowired(required = false) JdbcTemplate jdbcTemplate) {
 
         this.storageDirectory = Path.of(storageLocation)
                 .toAbsolutePath()
                 .normalize();
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public StoredFile store(MultipartFile file) throws IOException {
@@ -63,11 +68,24 @@ public class FileStorageService {
                 contentType = "application/octet-stream";
             }
 
+            long size = Files.size(destination);
+
+            // Persist to database blob table so files survive container restarts & redeploys on Render
+            if (jdbcTemplate != null) {
+                try {
+                    byte[] data = Files.readAllBytes(destination);
+                    jdbcTemplate.update("DELETE FROM document_blobs WHERE storage_key = ?", storageKey);
+                    jdbcTemplate.update("INSERT INTO document_blobs (storage_key, data) VALUES (?, ?)", storageKey, data);
+                } catch (Exception ignored) {
+                    // Non-fatal if database migration is still in progress
+                }
+            }
+
             return new StoredFile(
                     storageKey,
                     originalFilename,
                     contentType,
-                    Files.size(destination),
+                    size,
                     checksum
             );
 
@@ -83,6 +101,14 @@ public class FileStorageService {
         String newStorageKey = UUID.randomUUID().toString();
         Path destination = resolveStoragePath(newStorageKey);
         Files.copy(sourcePath, destination, StandardCopyOption.REPLACE_EXISTING);
+
+        if (jdbcTemplate != null) {
+            try {
+                byte[] data = Files.readAllBytes(destination);
+                jdbcTemplate.update("INSERT INTO document_blobs (storage_key, data) VALUES (?, ?)", newStorageKey, data);
+            } catch (Exception ignored) {}
+        }
+
         return newStorageKey;
     }
 
@@ -127,6 +153,12 @@ public class FileStorageService {
     public void delete(String storageKey) throws IOException {
         Path filePath = resolveStoragePath(storageKey);
         Files.deleteIfExists(filePath);
+
+        if (jdbcTemplate != null) {
+            try {
+                jdbcTemplate.update("DELETE FROM document_blobs WHERE storage_key = ?", storageKey);
+            } catch (Exception ignored) {}
+        }
     }
 
     public Path load(String storageKey) throws IOException {
@@ -134,12 +166,32 @@ public class FileStorageService {
         // Resolve the file inside the configured storage directory.
         Path filePath = resolveStoragePath(storageKey);
 
-        // Verify that the physical file exists.
-        if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
-            throw new IOException("Stored document not found");
+        // 1. Verify if the physical file exists and is non-empty on disk.
+        if (Files.exists(filePath) && Files.isRegularFile(filePath) && Files.size(filePath) > 0) {
+            return filePath;
         }
 
-        return filePath;
+        // 2. If missing from disk (e.g. Render container restarted or redeployed),
+        // restore seamlessly from persistent database blob storage!
+        if (jdbcTemplate != null) {
+            try {
+                byte[] blobData = jdbcTemplate.queryForObject(
+                        "SELECT data FROM document_blobs WHERE storage_key = ?",
+                        byte[].class,
+                        storageKey
+                );
+
+                if (blobData != null && blobData.length > 0) {
+                    Files.createDirectories(storageDirectory);
+                    Files.write(filePath, blobData);
+                    return filePath;
+                }
+            } catch (Exception ignored) {
+                // Not found in DB either
+            }
+        }
+
+        throw new IOException("Stored document not found");
     }
 
     public record StoredFile(

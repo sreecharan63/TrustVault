@@ -87,15 +87,16 @@ public class SecurityAttackTests {
     }
 
     private AppUser createOrUpdateUser(String email, String fullName, Role role) {
-        return userRepository.findByEmail(email).orElseGet(() -> {
-            AppUser user = new AppUser();
-            user.setEmail(email);
-            user.setFullName(fullName);
-            user.setPasswordHash(passwordEncoder.encode("Password123!"));
-            user.setRole(role);
-            user.setEnabled(true);
-            return userRepository.save(user);
+        AppUser user = userRepository.findByEmail(email).orElseGet(() -> {
+            AppUser u = new AppUser();
+            u.setEmail(email);
+            u.setPasswordHash(passwordEncoder.encode("Password123!"));
+            u.setEnabled(true);
+            return u;
         });
+        user.setFullName(fullName);
+        user.setRole(role);
+        return userRepository.save(user);
     }
 
     @Test

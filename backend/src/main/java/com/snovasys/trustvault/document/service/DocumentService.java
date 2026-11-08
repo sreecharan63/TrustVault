@@ -483,20 +483,20 @@ public class DocumentService {
                 ipAddress,
                 userAgent,
                 Map.of(
-                        "filename", document.getOriginalFilename(),
+                        "filename", document.getOriginalFilename() != null ? document.getOriginalFilename() : "unnamed",
                         "fileSize", document.getFileSize(),
-                        "contentType", document.getContentType()
+                        "contentType", document.getContentType() != null ? document.getContentType() : "application/octet-stream"
                 )
         );
 
         return new DownloadFile(
                 filePath,
-                document.getOriginalFilename(),
-                document.getContentType()
+                document.getOriginalFilename() != null ? document.getOriginalFilename() : "unnamed",
+                document.getContentType() != null ? document.getContentType() : "application/octet-stream"
         );
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public DownloadFile previewDocument(
             UUID documentId,
             String email,

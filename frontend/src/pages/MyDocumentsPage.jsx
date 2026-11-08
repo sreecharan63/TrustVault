@@ -54,10 +54,12 @@ export default function MyDocumentsPage() {
       const a = document.createElement('a')
       a.href = url
       a.download = doc.originalFilename || 'file'
+      document.body.appendChild(a)
       a.click()
-      URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 60000)
     } catch (err) {
-      let msg = 'Download failed.'
+      let msg = 'Download failed. Access denied or file unavailable.'
       if (err.response?.data instanceof Blob) {
         try {
           const raw = await err.response.data.text()
@@ -66,6 +68,8 @@ export default function MyDocumentsPage() {
         } catch {}
       } else if (err.response?.data?.message) {
         msg = err.response.data.message
+      } else if (err.message) {
+        msg = err.message
       }
       alert(msg)
     }

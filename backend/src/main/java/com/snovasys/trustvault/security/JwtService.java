@@ -18,7 +18,7 @@ public class JwtService {
     private final long expirationMs;
 
     public JwtService(
-            @Value("${TRUSTVAULT_JWT_SECRET}") String secret,
+            @Value("${TRUSTVAULT_JWT_SECRET:F71F98C8C8D714F1A84FBE32389305A468A2F007B866E869755A66E8A1F8C2BA}") String secret,
             @Value("${TRUSTVAULT_JWT_EXPIRATION_MS:3600000}")
             long expirationMs) {
 

@@ -58,10 +58,12 @@ export default function DocDetailModal({
       const a = document.createElement('a')
       a.href = url
       a.download = doc.originalFilename || 'document'
+      document.body.appendChild(a)
       a.click()
-      URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 60000)
     } catch (err) {
-      let msg = 'Download failed. Access denied.'
+      let msg = 'Download failed. Access denied or file unavailable.'
       if (err.response?.data instanceof Blob) {
         try {
           const raw = await err.response.data.text()
@@ -72,6 +74,8 @@ export default function DocDetailModal({
         }
       } else if (err.response?.data?.message) {
         msg = err.response.data.message
+      } else if (err.message) {
+        msg = err.message
       }
       setError(msg)
     } finally {
@@ -122,6 +126,8 @@ export default function DocDetailModal({
         }
       } else if (err.response?.data?.message) {
         msg = err.response.data.message
+      } else if (err.message) {
+        msg = err.message
       }
       setError(msg)
     } finally {

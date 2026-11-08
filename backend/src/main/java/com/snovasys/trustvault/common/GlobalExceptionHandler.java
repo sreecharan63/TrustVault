@@ -23,4 +23,19 @@ public class GlobalExceptionHandler {
                         "message", reason != null ? reason : "An error occurred"
                 ));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+        String message = ex.getMessage() != null && !ex.getMessage().isBlank()
+                ? ex.getMessage()
+                : "An unexpected server error occurred";
+        return ResponseEntity
+                .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                        "timestamp", Instant.now().toString(),
+                        "status", 500,
+                        "error", "INTERNAL_SERVER_ERROR",
+                        "message", message
+                ));
+    }
 }

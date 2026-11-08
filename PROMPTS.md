@@ -192,3 +192,22 @@
   5. Added one-click preview actions in `MyDocumentsPage.jsx` and `SharedWithMePage.jsx`.
 - **Commit References**:  
   - [`ef4499d`](https://github.com/sreecharan63/TrustVault/commit/ef4499d) — *fix(preview): add in-app preview modal viewer, record preview audit logs, and improve missing file handling*
+
+---
+
+### Entry 13: 2026-11-08 — Database-Backed Blob Storage & Transaction/Download Fixes
+- **Prompt to AI**:  
+  *"download and preview is not working check once"*
+- **What was wrong with it**:  
+  1. **PostgreSQL Read-Only Transaction Conflict**: `previewDocument` was annotated with `@Transactional(readOnly = true)`. When it called `auditService.recordSuccess(...)` to log the preview event, PostgreSQL aborted with `PSQLException: cannot execute INSERT in a read-only transaction`.
+  2. **Premature Object URL Revocation**: In `DocDetailModal.jsx`, `MyDocumentsPage.jsx`, and `SharedWithMePage.jsx`, `URL.revokeObjectURL(url)` was called synchronously on the very next line right after `a.click()`. In Chromium browsers, this aborted the asynchronous download manager before blob bytes (like `suraj.docx` at 12.69 MB) could stream to disk.
+  3. **Ephemeral Container Data Loss on Render**: Render free-tier web services restart on new containers with an empty local filesystem (`/app/storage`), causing documents uploaded prior to container restarts to disappear from disk.
+  4. **Null Pointer Risk in Audit Maps**: `Map.of()` in `downloadDocument` threw `NullPointerException` if `contentType` was null.
+- **What was done instead**:  
+  1. **Flyway Migration V8 (`document_blobs`)**: Created persistent byte storage table in PostgreSQL (`storage_key VARCHAR(500) PRIMARY KEY, data BYTEA NOT NULL`) with index.
+  2. **Dual-Layer File Storage Service**: Updated `FileStorageService.java` to save uploads to disk and PostgreSQL simultaneously. On `load()`, if local container disk lacks the file after a restart, it automatically recovers the file bytes from PostgreSQL into local disk storage and serves it seamlessly.
+  3. **Transaction Fix**: Changed `previewDocument` from `@Transactional(readOnly = true)` to `@Transactional` so audit records can be cleanly written.
+  4. **Browser Download Lifecycle**: Appended `<a>` to `document.body` and deferred `URL.revokeObjectURL(url)` by 60 seconds so downloads complete reliably without network abortion.
+  5. **Null-Safe Audit Details & Global Exception Handler**: Protected `Map.of` against null fields and added general exception handling in `GlobalExceptionHandler.java`.
+- **Commit References**:  
+  - `Upcoming Commit` — *fix(storage): add database blob persistence, fix read-only preview transaction, and prevent premature download url revocation*
