@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { register as registerApi, getMe } from '../api/auth.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import TrustVaultLogo from '../components/TrustVaultLogo.jsx'
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('')
@@ -59,10 +60,8 @@ export default function RegisterPage() {
         padding: '2.25rem',
         boxShadow: '0 12px 40px rgba(0, 0, 0, 0.85)'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.4rem', textShadow: '0 0 16px rgba(229, 9, 20, 0.4)' }}>🔒</div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '0.02em', color: '#ffffff' }}>Create Account</h1>
-          <p className="text-muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Join the TrustVault platform</p>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <TrustVaultLogo size={48} showText={true} subtitle="DIGITAL PROTECTION VAULT" />
         </div>
 
         {error && <div className="error-box">{error}</div>}

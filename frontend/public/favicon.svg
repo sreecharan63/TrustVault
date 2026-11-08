@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
+  <defs>
+    <linearGradient id="shieldGrad" x1="24" y1="2" x2="24" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E50914"/>
+      <stop offset="65%" stop-color="#B81D24"/>
+      <stop offset="100%" stop-color="#550508"/>
+    </linearGradient>
+    <radialGradient id="coreGlow" cx="24" cy="24" r="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E50914" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#141414" stop-opacity="0.95"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outer Digital Security Shield -->
+  <path d="M24 3L6 10V22C6 33.2 13.8 43.1 24 46C34.2 43.1 42 33.2 42 22V10L24 3Z" 
+        fill="url(#shieldGrad)" 
+        stroke="#E50914" 
+        stroke-width="1.5" 
+        stroke-linejoin="round"/>
+
+  <!-- Inner Cyber Protection Surface -->
+  <path d="M24 6L9.5 12V22C9.5 31.2 15.8 39.5 24 42.2C32.2 39.5 38.5 31.2 38.5 22V12L24 6Z" 
+        fill="#121212" 
+        fill-opacity="0.92" 
+        stroke="#E50914" 
+        stroke-width="0.8" 
+        stroke-opacity="0.6"/>
+
+  <!-- Digital Protection Traces & Nodes -->
+  <path d="M24 8V13M12.5 19H16.5M31.5 19H35.5M24 35V40" stroke="#E50914" stroke-width="1.4" stroke-linecap="round" stroke-opacity="0.9"/>
+  <circle cx="24" cy="13" r="1.5" fill="#ffffff"/>
+  <circle cx="16.5" cy="19" r="1.5" fill="#ffffff"/>
+  <circle cx="31.5" cy="19" r="1.5" fill="#ffffff"/>
+  <circle cx="24" cy="35" r="1.5" fill="#ffffff"/>
+
+  <!-- Circular Vault Door Dial -->
+  <circle cx="24" cy="24" r="9.5" fill="url(#coreGlow)" stroke="#ffffff" stroke-width="1.4" stroke-opacity="0.95"/>
+  <circle cx="24" cy="24" r="7" stroke="#E50914" stroke-width="1.2" stroke-dasharray="2.5 2"/>
+
+  <!-- Central Vault Lock Core / Keyhole -->
+  <path d="M22 21.5C22 20.4 22.9 19.5 24 19.5C25.1 19.5 26 20.4 26 21.5C26 22.25 25.6 22.9 25 23.3V27C25 27.6 24.6 28 24 28C23.4 28 23 27.6 23 27V23.3C22.4 22.9 22 22.25 22 21.5Z" 
+        fill="#ffffff"/>
+</svg>

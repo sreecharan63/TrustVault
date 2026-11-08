@@ -2,6 +2,7 @@ import React from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { useNotifications } from '../contexts/NotificationContext.jsx'
+import TrustVaultLogo from './TrustVaultLogo.jsx'
 
 export default function Navbar() {
   const { user, logout, isAdmin } = useAuth()
@@ -31,18 +32,8 @@ export default function Navbar() {
       boxShadow: '0 4px 16px rgba(0, 0, 0, 0.8)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-        <Link to="/" style={{
-          fontWeight: 800,
-          fontSize: '1.25rem',
-          color: 'var(--accent)',
-          textDecoration: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.45rem',
-          letterSpacing: '0.04em',
-          textShadow: '0 0 12px rgba(229, 9, 20, 0.4)'
-        }}>
-          🔒 TRUSTVAULT
+        <Link to="/" style={{ textDecoration: 'none' }}>
+          <TrustVaultLogo size={28} showText={true} subtitle="DIGITAL PROTECTION" />
         </Link>
         <div style={{ display: 'flex', gap: '0.4rem' }}>
           <NavLink to="/" label="Dashboard" location={location} />

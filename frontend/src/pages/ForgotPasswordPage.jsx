@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { forgotPassword, resetPassword } from '../api/auth.js'
+import TrustVaultLogo from '../components/TrustVaultLogo.jsx'
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1) // 1: Request, 2: Reset
@@ -83,10 +84,8 @@ export default function ForgotPasswordPage() {
         padding: '2.25rem',
         boxShadow: '0 12px 40px rgba(0, 0, 0, 0.85)'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.4rem', textShadow: '0 0 16px rgba(229, 9, 20, 0.4)' }}>🔑</div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '0.02em', color: '#ffffff' }}>Reset Password</h1>
-          <p className="text-muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Recover access to your TrustVault account</p>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <TrustVaultLogo size={48} showText={true} subtitle="DIGITAL PROTECTION VAULT" />
         </div>
 
         {error && <div className="error-box" style={{ marginBottom: '1rem' }}>{error}</div>}

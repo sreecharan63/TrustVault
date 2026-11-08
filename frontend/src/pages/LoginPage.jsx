@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { login as loginApi } from '../api/auth.js'
 import { getMe } from '../api/auth.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import TrustVaultLogo from '../components/TrustVaultLogo.jsx'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -50,10 +51,8 @@ export default function LoginPage() {
         padding: '2.25rem',
         boxShadow: '0 12px 40px rgba(0, 0, 0, 0.85)'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.4rem', textShadow: '0 0 16px rgba(229, 9, 20, 0.4)' }}>🔒</div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '0.02em', color: '#ffffff' }}>TRUSTVAULT</h1>
-          <p className="text-muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Secure Document Management</p>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <TrustVaultLogo size={52} showText={true} subtitle="DIGITAL PROTECTION VAULT" />
         </div>
 
         {error && <div className="error-box">{error}</div>}
