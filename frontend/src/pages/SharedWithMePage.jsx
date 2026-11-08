@@ -6,6 +6,7 @@ import EditDocumentModal from '../components/EditDocumentModal.jsx'
 import ActivityModal from '../components/ActivityModal.jsx'
 import VersionHistoryModal from '../components/VersionHistoryModal.jsx'
 import PreviewModal from '../components/PreviewModal.jsx'
+import { Search } from 'lucide-react'
 
 export default function SharedWithMePage() {
   const { isItemUpdated, markSectionSeen, refreshCounts } = useNotifications()
@@ -150,11 +151,15 @@ export default function SharedWithMePage() {
       )}
 
       <div className="search-bar">
-        <input
-          placeholder="🔍 Search shared documents..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+        <div className="search-input-wrapper">
+          <Search className="search-icon" size={17} strokeWidth={2} />
+          <input
+            type="text"
+            placeholder="Search shared documents..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
       {error && <div className="error-box">{error}</div>}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { getAuditLogs } from '../api/admin.js'
 import PermissionsModal from '../components/PermissionsModal.jsx'
+import { Filter } from 'lucide-react'
 
 export default function AdminAuditPage() {
   const [logs, setLogs] = useState([])
@@ -324,7 +325,13 @@ export default function AdminAuditPage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-            <button type="submit" className="btn btn-primary">🔍 Filter</button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+            >
+              <Filter size={15} strokeWidth={2.2} /> Filter
+            </button>
             <button type="button" className="btn btn-ghost" onClick={clearFilters}>Clear</button>
           </div>
         </form>

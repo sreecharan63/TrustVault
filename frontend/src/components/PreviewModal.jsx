@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { ZoomIn, ZoomOut } from 'lucide-react'
 
 export default function PreviewModal({
   doc,
@@ -206,20 +207,20 @@ export default function PreviewModal({
           >
             <button
               className="btn btn-ghost btn-sm"
-              style={{ padding: '0.2rem 0.55rem', fontSize: '0.75rem' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.55rem', fontSize: '0.75rem' }}
               onClick={() => setZoom(z => Math.max(0.5, +(z - 0.25).toFixed(2)))}
             >
-              🔍- Zoom Out
+              <ZoomOut size={13} strokeWidth={2} /> Zoom Out
             </button>
             <span style={{ minWidth: '45px', textAlign: 'center', fontWeight: 600, color: 'var(--accent)' }}>
               {Math.round(zoom * 100)}%
             </span>
             <button
               className="btn btn-ghost btn-sm"
-              style={{ padding: '0.2rem 0.55rem', fontSize: '0.75rem' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.55rem', fontSize: '0.75rem' }}
               onClick={() => setZoom(z => Math.min(3, +(z + 0.25).toFixed(2)))}
             >
-              🔍+ Zoom In
+              <ZoomIn size={13} strokeWidth={2} /> Zoom In
             </button>
             <button
               className="btn btn-ghost btn-sm"

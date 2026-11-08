@@ -211,3 +211,19 @@
   5. **Null-Safe Audit Details & Global Exception Handler**: Protected `Map.of` against null fields and added general exception handling in `GlobalExceptionHandler.java`.
 - **Commit References**:  
   - [`ce81d3b`](https://github.com/sreecharan63/TrustVault/commit/ce81d3b) — *fix(storage): add database blob persistence, fix read-only preview transaction, and prevent premature download url revocation*
+
+---
+
+### Entry 14: 2026-11-09 — Replace Search Emoji with Vector Line Design Icon
+- **Prompt to AI**:  
+  *"replace the search icon emoji with search design line"*
+- **What was wrong with it**:  
+  Raw unicode search emojis (`🔍`) were embedded directly inside input placeholders and button labels, appearing outdated and inconsistent across platforms and operating systems.
+- **What was done instead**:  
+  1. Replaced the `🔍` placeholder emoji with a sleek vector outline line icon (`<Search className="search-icon" size={17} strokeWidth={2} />`) from `lucide-react`.
+  2. Implemented `.search-input-wrapper` in `index.css` with absolute icon positioning, inset input padding, and smooth Netflix Red accent focus highlight (`:focus-within`).
+  3. Updated [`MyDocumentsPage.jsx`](file:///d:/TrustVault/frontend/src/pages/MyDocumentsPage.jsx) and [`SharedWithMePage.jsx`](file:///d:/TrustVault/frontend/src/pages/SharedWithMePage.jsx) to use the new line icon wrapper.
+  4. Updated [`AdminAuditPage.jsx`](file:///d:/TrustVault/frontend/src/pages/AdminAuditPage.jsx) to replace `🔍 Filter` with `<Filter size={15} /> Filter`.
+  5. Updated [`PreviewModal.jsx`](file:///d:/TrustVault/frontend/src/components/PreviewModal.jsx) to replace `🔍-` and `🔍+` zoom buttons with `<ZoomOut size={13} />` and `<ZoomIn size={13} />` line icons.
+- **Commit References**:  
+  - `Upcoming Commit` — *feat(ui): replace search and zoom emojis with vector line design icons and animated focus wrapper*

@@ -10,6 +10,7 @@ import PermissionsModal from '../components/PermissionsModal.jsx'
 import VersionHistoryModal from '../components/VersionHistoryModal.jsx'
 import ActivityModal from '../components/ActivityModal.jsx'
 import PreviewModal from '../components/PreviewModal.jsx'
+import { Search } from 'lucide-react'
 
 export default function MyDocumentsPage() {
   const { user, isAdmin } = useAuth()
@@ -201,11 +202,15 @@ export default function MyDocumentsPage() {
       )}
 
       <div className="search-bar">
-        <input
-          placeholder="🔍 Search by filename, description, tags..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+        <div className="search-input-wrapper">
+          <Search className="search-icon" size={17} strokeWidth={2} />
+          <input
+            type="text"
+            placeholder="Search by filename, description, tags..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
         <select value={category} onChange={e => setCategory(e.target.value)}>
           <option value="">All Categories</option>
           {categories.map(c => <option key={c} value={c}>{c}</option>)}
