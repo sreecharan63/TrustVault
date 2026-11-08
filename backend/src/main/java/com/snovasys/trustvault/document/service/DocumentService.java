@@ -1056,7 +1056,28 @@ public class DocumentService {
                 .distinct()
                 .count();
 
-        List<DocumentResponse> recentDocs = getMyDocuments(email, null, null).stream().limit(5).toList();
+        List<DocumentResponse> myDocs = getMyDocuments(email, null, null);
+        List<DocumentResponse> sharedDocs = isAdmin ? List.of() : getSharedWithMe(email);
+
+        List<DocumentResponse> recentDocs = java.util.stream.Stream.concat(myDocs.stream(), sharedDocs.stream())
+                .filter(d -> d != null)
+                .collect(java.util.stream.Collectors.toMap(
+                        DocumentResponse::id,
+                        d -> d,
+                        (existing, replacement) -> existing
+                ))
+                .values()
+                .stream()
+                .sorted((a, b) -> {
+                    java.time.OffsetDateTime tA = a.updatedAt() != null ? a.updatedAt() : a.createdAt();
+                    java.time.OffsetDateTime tB = b.updatedAt() != null ? b.updatedAt() : b.createdAt();
+                    if (tA == null && tB == null) return 0;
+                    if (tA == null) return 1;
+                    if (tB == null) return -1;
+                    return tB.compareTo(tA);
+                })
+                .limit(8)
+                .toList();
         List<String> categories = isAdmin
                 ? documentRepository.findDistinctCategoriesByStatus(DocumentStatus.ACTIVE)
                 : documentRepository.findDistinctCategoriesByOwner(user.getId(), DocumentStatus.ACTIVE);

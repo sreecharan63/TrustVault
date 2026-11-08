@@ -76,7 +76,17 @@ export default function DashboardPage() {
             Click any document to inspect active permissions and choose an action.
           </p>
         </div>
-        <Link to="/documents" className="btn btn-ghost btn-sm">View all →</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={fetchDashboardData}
+            title="Refresh recent documents"
+            style={{ fontSize: '0.8rem', padding: '0.35rem 0.65rem', border: '1px solid #333' }}
+          >
+            🔄 Refresh
+          </button>
+          <Link to="/documents" className="btn btn-ghost btn-sm">View all →</Link>
+        </div>
       </div>
 
       {recent.length === 0 ? (
