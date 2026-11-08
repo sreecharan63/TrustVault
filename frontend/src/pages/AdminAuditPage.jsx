@@ -9,6 +9,7 @@ export default function AdminAuditPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedDocForPerms, setSelectedDocForPerms] = useState(null)
+  const [downloading, setDownloading] = useState(false)
 
   // Filters
   const [actorEmail, setActorEmail] = useState('')
@@ -17,6 +18,31 @@ export default function AdminAuditPage() {
   const [resourceId, setResourceId] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+
+  // New Audits Tracking
+  const getAuditLastSeen = () => {
+    const val = localStorage.getItem('tv_last_seen_audit')
+    if (!val) {
+      // Default to 1 hour ago on first load so recent events are highlighted
+      const defaultTime = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+      localStorage.setItem('tv_last_seen_audit', defaultTime)
+      return new Date(defaultTime).getTime()
+    }
+    return new Date(val).getTime()
+  }
+
+  const [lastSeenTime, setLastSeenTime] = useState(getAuditLastSeen)
+
+  const isNewAudit = (log) => {
+    if (!log.createdAt) return false
+    return new Date(log.createdAt).getTime() > lastSeenTime
+  }
+
+  const markAuditsAsViewed = () => {
+    const now = new Date().toISOString()
+    localStorage.setItem('tv_last_seen_audit', now)
+    setLastSeenTime(new Date(now).getTime())
+  }
 
   const eventTypes = [
     'DOCUMENT_UPLOAD', 'DOCUMENT_DOWNLOAD', 'DOCUMENT_EDIT', 'DOCUMENT_DELETE',
@@ -109,7 +135,7 @@ export default function AdminAuditPage() {
           </span>
         )}
         {details.canDownload && (
-          <span className="badge" style={{ background: '#3b82f6', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: 9999 }}>
+          <span className="badge" style={{ background: 'rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: 'var(--radius)', border: '1px solid rgba(255, 255, 255, 0.25)' }}>
             ⬇️ Download
           </span>
         )}
@@ -117,16 +143,150 @@ export default function AdminAuditPage() {
     )
   }
 
+  // Audit Log Export Functions (CSV & JSON)
+  const handleExportCSV = async () => {
+    setDownloading(true)
+    try {
+      const params = { page: 0, size: 100 }
+      if (actorEmail) params.actorEmail = actorEmail
+      if (eventType) params.eventType = eventType
+      if (outcome) params.outcome = outcome
+      if (resourceId) params.resourceId = resourceId
+      if (startDate) params.startDate = startDate
+      if (endDate) params.endDate = endDate
+
+      const res = await getAuditLogs(params)
+      const dataToExport = res.data?.content || logs
+
+      const headers = ['Timestamp', 'Event Type', 'Outcome', 'Actor Email', 'Document Name', 'Recipient', 'Resource Type', 'Resource ID', 'Access Details', 'IP Address']
+      
+      const rows = dataToExport.map(log => {
+        const d = log.details || {}
+        const fileName = d.filename || (log.resourceId ? `ID:${log.resourceId}` : '')
+        const recipient = d.recipientName || d.recipientEmail || ''
+        const access = [
+          d.canRead ? 'Read' : '',
+          d.canEdit ? 'Edit' : '',
+          d.canDownload ? 'Download' : '',
+          d.versionNumber ? `v${d.versionNumber}` : '',
+          d.reason ? `Denied: ${d.reason}` : ''
+        ].filter(Boolean).join('; ')
+
+        return [
+          log.createdAt || '',
+          log.eventType || '',
+          log.outcome || '',
+          log.actorEmail || 'System',
+          fileName,
+          recipient,
+          log.resourceType || '',
+          log.resourceId || '',
+          access,
+          log.ipAddress || ''
+        ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')
+      })
+
+      const csvContent = [headers.join(','), ...rows].join('\n')
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `trustvault-audit-trail-${new Date().toISOString().slice(0, 10)}.csv`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert('Failed to export CSV: ' + (err.message || 'Unknown error'))
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  const handleExportJSON = async () => {
+    setDownloading(true)
+    try {
+      const params = { page: 0, size: 100 }
+      if (actorEmail) params.actorEmail = actorEmail
+      if (eventType) params.eventType = eventType
+      if (outcome) params.outcome = outcome
+      if (resourceId) params.resourceId = resourceId
+      if (startDate) params.startDate = startDate
+      if (endDate) params.endDate = endDate
+
+      const res = await getAuditLogs(params)
+      const dataToExport = res.data?.content || logs
+
+      const jsonStr = JSON.stringify(dataToExport, null, 2)
+      const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `trustvault-audit-trail-${new Date().toISOString().slice(0, 10)}.json`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert('Failed to export JSON: ' + (err.message || 'Unknown error'))
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  const newCount = logs.filter(isNewAudit).length
+
   return (
     <div className="page">
-      <div className="flex-between mb-2">
+      <div className="flex-between mb-2" style={{ flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 className="page-title" style={{ margin: 0 }}>🛡️ Global Audit Trail</h1>
           <p className="text-muted" style={{ marginTop: '0.25rem' }}>
             Cryptographically sealed, append-only record of all document accesses, permission grants, modifications, and security denials.
           </p>
         </div>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={handleExportJSON}
+            disabled={downloading}
+            title="Download current filtered logs as JSON"
+          >
+            📥 Export JSON
+          </button>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleExportCSV}
+            disabled={downloading}
+            title="Download current filtered logs as CSV"
+          >
+            {downloading ? '⏳ Exporting...' : '📥 Download Audit CSV'}
+          </button>
+        </div>
       </div>
+
+      {/* New Audits Notification Banner */}
+      {newCount > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: 'rgba(229, 9, 20, 0.12)',
+          border: '1px solid rgba(229, 9, 20, 0.35)',
+          borderRadius: 'var(--radius)',
+          padding: '0.65rem 1rem',
+          marginBottom: '1rem',
+          color: '#ffffff',
+          fontSize: '0.875rem'
+        }}>
+          <span>
+            ✨ <strong>{newCount}</strong> newly recorded audit event{newCount > 1 ? 's' : ''} (highlighted below with Netflix Red border and NEW tag).
+          </span>
+          <button
+            className="btn btn-sm"
+            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            onClick={markAuditsAsViewed}
+          >
+            ✓ Mark as viewed
+          </button>
+        </div>
+      )}
 
       <div className="card mb-2">
         <form onSubmit={handleFilter}>
@@ -197,11 +357,35 @@ export default function AdminAuditPage() {
                     const isDocEvent = log.resourceType === 'DOCUMENT' && log.resourceId
                     const fileName = d.filename || (log.resourceId ? `File: ${log.resourceId.substring(0, 8)}...` : null)
                     const recipient = d.recipientName || d.recipientEmail
+                    const isNew = isNewAudit(log)
 
                     return (
-                      <tr key={log.id || i}>
-                        {/* Timestamp */}
+                      <tr
+                        key={log.id || i}
+                        style={isNew ? {
+                          borderLeft: '4px solid var(--accent)',
+                          background: 'linear-gradient(90deg, rgba(229, 9, 20, 0.14) 0%, rgba(24, 24, 24, 0.95) 100%)',
+                          boxShadow: 'inset 0 0 10px rgba(229, 9, 20, 0.12)'
+                        } : {}}
+                      >
+                        {/* Timestamp with NEW badge if unviewed */}
                         <td style={{ whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
+                          {isNew && (
+                            <span style={{
+                              background: 'var(--accent)',
+                              color: '#ffffff',
+                              fontSize: '0.62rem',
+                              fontWeight: 800,
+                              letterSpacing: '0.04em',
+                              padding: '0.15rem 0.45rem',
+                              borderRadius: '9999px',
+                              boxShadow: '0 0 8px rgba(229, 9, 20, 0.7)',
+                              marginRight: '0.45rem',
+                              display: 'inline-block'
+                            }}>
+                              NEW
+                            </span>
+                          )}
                           {fmtDate(log.createdAt)}
                         </td>
 
