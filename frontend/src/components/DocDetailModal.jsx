@@ -2,6 +2,25 @@ import React, { useState, useEffect } from 'react'
 import { downloadDocument, previewDocument, deleteDocument, getDocumentPermissions } from '../api/documents.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import PreviewModal from './PreviewModal.jsx'
+import FileIcon from './FileIcon.jsx'
+import {
+  X,
+  Folder,
+  User,
+  Lock,
+  Shield,
+  ShieldCheck,
+  Check,
+  Users,
+  Sparkles,
+  Download,
+  Eye,
+  Edit3,
+  Share2,
+  History,
+  Activity,
+  Trash2
+} from 'lucide-react'
 
 export default function DocDetailModal({
   doc,
@@ -154,8 +173,20 @@ export default function DocDetailModal({
       <div className="modal" style={{ maxWidth: 620, padding: '2rem' }}>
         {/* Header */}
         <div className="modal-title" style={{ marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.5rem' }}>📄</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: 44,
+              height: 44,
+              borderRadius: 8,
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid #2e2e2e',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <FileIcon contentType={doc.contentType} filename={doc.originalFilename} size={24} />
+            </div>
             <div>
               <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#ffffff' }}>
                 {doc.originalFilename}
@@ -165,20 +196,31 @@ export default function DocDetailModal({
               </div>
             </div>
           </div>
-          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{ borderRadius: '50%', width: 32, height: 32, padding: 0 }}>✕</button>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={onClose}
+            style={{ borderRadius: '50%', width: 32, height: 32, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="Close"
+          >
+            <X size={16} />
+          </button>
         </div>
 
         {error && <div className="error-box" style={{ marginBottom: '1.25rem' }}>{error}</div>}
 
         {/* Document Metadata Badges */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.25rem' }}>
-          {doc.category && <span className="badge badge-neutral">📁 {doc.category}</span>}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.25rem', alignItems: 'center' }}>
+          {doc.category && (
+            <span className="badge badge-neutral" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+              <Folder size={12} strokeWidth={2} /> {doc.category}
+            </span>
+          )}
           {doc.tags && doc.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => (
             <span key={t} className="badge badge-neutral">#{t}</span>
           ))}
           {doc.ownerEmail && (
-            <span className="badge badge-neutral" style={{ marginLeft: 'auto' }}>
-              👤 Owner: {doc.ownerName || doc.ownerEmail}
+            <span className="badge badge-neutral" style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+              <User size={12} strokeWidth={2} /> Owner: {doc.ownerName || doc.ownerEmail}
             </span>
           )}
         </div>
@@ -192,12 +234,20 @@ export default function DocDetailModal({
           marginBottom: '1.5rem'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              🔐 Active Access Permissions
+            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <Lock size={15} strokeWidth={2} color="var(--accent)" /> Active Access Permissions
             </div>
             {hasFullRights && (
-              <span className="badge" style={{ background: 'rgba(229, 9, 20, 0.18)', color: 'var(--accent)', border: '1px solid rgba(229, 9, 20, 0.4)' }}>
-                {isAdmin ? '🛡️ Administrator Control' : '👑 Document Owner'}
+              <span className="badge" style={{
+                background: 'rgba(229, 9, 20, 0.18)',
+                color: 'var(--accent)',
+                border: '1px solid rgba(229, 9, 20, 0.4)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem'
+              }}>
+                {isAdmin ? <Shield size={12} strokeWidth={2.2} /> : <ShieldCheck size={12} strokeWidth={2.2} />}
+                {isAdmin ? 'Administrator Control' : 'Document Owner'}
               </span>
             )}
           </div>
@@ -212,7 +262,9 @@ export default function DocDetailModal({
               padding: '0.75rem',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{canRead ? '✅' : '🚫'}</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem' }}>
+                {canRead ? <Check size={18} strokeWidth={2.5} color="#46d369" /> : <X size={18} strokeWidth={2.5} color="#666666" />}
+              </div>
               <div style={{ fontWeight: 700, fontSize: '0.8rem', color: canRead ? '#46d369' : 'var(--text-muted)' }}>
                 Read Access
               </div>
@@ -229,7 +281,9 @@ export default function DocDetailModal({
               padding: '0.75rem',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{canEdit ? '✅' : '🚫'}</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem' }}>
+                {canEdit ? <Check size={18} strokeWidth={2.5} color="#e5a00d" /> : <X size={18} strokeWidth={2.5} color="#666666" />}
+              </div>
               <div style={{ fontWeight: 700, fontSize: '0.8rem', color: canEdit ? '#e5a00d' : 'var(--text-muted)' }}>
                 Edit Access
               </div>
@@ -246,7 +300,9 @@ export default function DocDetailModal({
               padding: '0.75rem',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{canDownload ? '✅' : '🚫'}</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem' }}>
+                {canDownload ? <Check size={18} strokeWidth={2.5} color="#46d369" /> : <X size={18} strokeWidth={2.5} color="#666666" />}
+              </div>
               <div style={{ fontWeight: 700, fontSize: '0.8rem', color: canDownload ? '#46d369' : 'var(--text-muted)' }}>
                 Download Access
               </div>
@@ -259,14 +315,16 @@ export default function DocDetailModal({
           {/* Active Collaborators Count for Owner/Admin */}
           {hasFullRights && collaborators.length > 0 && (
             <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span>👥 <strong>{collaborators.length}</strong> collaborator{collaborators.length > 1 ? 's' : ''} have active shared access.</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                <Users size={13} strokeWidth={2} /> <strong>{collaborators.length}</strong> collaborator{collaborators.length > 1 ? 's' : ''} have active shared access.
+              </span>
               <button
                 type="button"
                 className="btn btn-ghost btn-sm"
-                style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                 onClick={() => { onClose(); onOpenPerms(doc); }}
               >
-                🔐 Manage Collaborators →
+                <Lock size={12} strokeWidth={2} /> Manage Collaborators →
               </button>
             </div>
           )}
@@ -274,8 +332,8 @@ export default function DocDetailModal({
 
         {/* Section 2: Choose What You Want To Do (Actions Hub) */}
         <div>
-          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#ffffff', marginBottom: '0.75rem' }}>
-            ⚡ Choose what you want to do:
+          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#ffffff', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Sparkles size={14} strokeWidth={2} color="var(--accent)" /> Available Actions:
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
@@ -285,9 +343,10 @@ export default function DocDetailModal({
               className="btn btn-primary"
               disabled={!canDownload || !!loadingAction}
               onClick={handleDownload}
-              style={{ justifyContent: 'center', padding: '0.75rem' }}
+              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              {loadingAction === 'download' ? '⏳ Downloading...' : '⬇️ Download Document'}
+              <Download size={15} strokeWidth={2} />
+              {loadingAction === 'download' ? 'Downloading...' : 'Download Document'}
             </button>
 
             {/* Preview Button */}
@@ -296,9 +355,10 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!canRead || !!loadingAction}
               onClick={handlePreview}
-              style={{ justifyContent: 'center', padding: '0.75rem' }}
+              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              {loadingAction === 'preview' ? '⏳ Opening...' : '👁️ Preview / Open'}
+              <Eye size={15} strokeWidth={2} />
+              {loadingAction === 'preview' ? 'Opening...' : 'Preview / Open'}
             </button>
 
             {/* Edit / New Version Button */}
@@ -307,9 +367,10 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!canEdit || !!loadingAction}
               onClick={() => { onClose(); onOpenEdit(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem' }}
+              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              ✏️ Edit & New Version
+              <Edit3 size={15} strokeWidth={2} />
+              Edit & New Version
             </button>
 
             {/* Share Button */}
@@ -318,9 +379,10 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!hasFullRights || !!loadingAction}
               onClick={() => { onClose(); onOpenShare(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem' }}
+              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              🔗 Share with Others
+              <Share2 size={15} strokeWidth={2} />
+              Share with Others
             </button>
 
             {/* Manage Permissions */}
@@ -329,9 +391,10 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!hasFullRights || !!loadingAction}
               onClick={() => { onClose(); onOpenPerms(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem' }}
+              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              🔐 Manage Permissions
+              <Lock size={15} strokeWidth={2} />
+              Manage Permissions
             </button>
 
             {/* Version History */}
@@ -340,9 +403,10 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!canRead || !!loadingAction}
               onClick={() => { onClose(); onOpenVersions(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem' }}
+              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              📋 Version History
+              <History size={15} strokeWidth={2} />
+              Version History
             </button>
 
             {/* Audit Trail */}
@@ -351,9 +415,10 @@ export default function DocDetailModal({
               className="btn btn-ghost"
               disabled={!hasFullRights && !canRead}
               onClick={() => { onClose(); onOpenActivity(doc); }}
-              style={{ justifyContent: 'center', padding: '0.75rem' }}
+              style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
             >
-              📊 Audit Activity Trail
+              <Activity size={15} strokeWidth={2} />
+              Audit Activity Trail
             </button>
 
             {/* Delete Document */}
@@ -363,9 +428,10 @@ export default function DocDetailModal({
                 className="btn btn-danger"
                 disabled={!!loadingAction}
                 onClick={handleDelete}
-                style={{ justifyContent: 'center', padding: '0.75rem' }}
+                style={{ justifyContent: 'center', padding: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
               >
-                {loadingAction === 'delete' ? '⏳ Deleting...' : '🗑️ Delete Document'}
+                <Trash2 size={15} strokeWidth={2} />
+                {loadingAction === 'delete' ? 'Deleting...' : 'Delete Document'}
               </button>
             )}
           </div>

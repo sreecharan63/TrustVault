@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { ZoomIn, ZoomOut } from 'lucide-react'
+import { ZoomIn, ZoomOut, X, ExternalLink, Download, Copy, Check, ShieldCheck } from 'lucide-react'
+import FileIcon from './FileIcon.jsx'
 
 export default function PreviewModal({
   doc,
@@ -100,9 +101,21 @@ export default function PreviewModal({
         >
           {/* Filename and Info */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
-            <span style={{ fontSize: '1.4rem' }}>
-              {isPdf ? '📕' : isImage ? '🖼️' : isText ? '📝' : isVideo ? '🎬' : isAudio ? '🎵' : '📄'}
-            </span>
+            <div
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: '8px',
+                background: '#222222',
+                border: '1px solid #2e2e2e',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}
+            >
+              <FileIcon contentType={mime} filename={filename} size={20} />
+            </div>
             <div style={{ minWidth: 0 }}>
               <div
                 style={{
@@ -147,7 +160,7 @@ export default function PreviewModal({
                 border: '1px solid #333'
               }}
             >
-              ↗️ Open New Tab
+              <ExternalLink size={13} strokeWidth={2} /> Open New Tab
             </a>
 
             {/* Direct Download */}
@@ -165,7 +178,7 @@ export default function PreviewModal({
                 padding: '0.35rem 0.75rem'
               }}
             >
-              ⬇️ Download
+              <Download size={13} strokeWidth={2} /> Download
             </a>
 
             {/* Close Button */}
@@ -185,7 +198,7 @@ export default function PreviewModal({
               }}
               title="Close Preview (Esc)"
             >
-              ✕
+              <X size={16} strokeWidth={2} />
             </button>
           </div>
         </div>
@@ -259,10 +272,18 @@ export default function PreviewModal({
               </label>
               <button
                 className="btn btn-ghost btn-sm"
-                style={{ padding: '0.2rem 0.55rem', fontSize: '0.75rem' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.55rem', fontSize: '0.75rem' }}
                 onClick={handleCopyText}
               >
-                {copied ? '✓ Copied' : '📋 Copy Text'}
+                {copied ? (
+                  <>
+                    <Check size={12} strokeWidth={2.5} color="#46d369" /> Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy size={12} strokeWidth={2} /> Copy Text
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -362,7 +383,22 @@ export default function PreviewModal({
           {/* 5. Audio Viewer */}
           {isAudio && (
             <div style={{ padding: '3rem 2rem', textAlign: 'center' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎵</div>
+              <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'center' }}>
+                <div
+                  style={{
+                    width: 72,
+                    height: 72,
+                    borderRadius: '16px',
+                    background: '#222222',
+                    border: '1px solid #333333',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <FileIcon contentType={mime} filename={filename} size={36} />
+                </div>
+              </div>
               <div style={{ color: '#ffffff', fontWeight: 600, marginBottom: '1.5rem' }}>{filename}</div>
               <audio controls src={blobUrl} style={{ width: '380px', maxWidth: '100%' }} />
             </div>
@@ -388,11 +424,10 @@ export default function PreviewModal({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '2.5rem',
                   margin: '0 auto 1.5rem auto'
                 }}
               >
-                📦
+                <FileIcon contentType={mime} filename={filename} size={38} />
               </div>
               <h3 style={{ color: '#ffffff', fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>
                 Preview Not Supported In-Browser
@@ -406,18 +441,18 @@ export default function PreviewModal({
                   href={blobUrl}
                   download={filename}
                   className="btn btn-primary"
-                  style={{ padding: '0.65rem 1.25rem', textDecoration: 'none' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.65rem 1.25rem', textDecoration: 'none' }}
                 >
-                  ⬇️ Download File
+                  <Download size={15} strokeWidth={2} /> Download File
                 </a>
                 <a
                   href={blobUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-ghost"
-                  style={{ padding: '0.65rem 1.25rem', textDecoration: 'none', border: '1px solid #333' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.65rem 1.25rem', textDecoration: 'none', border: '1px solid #333' }}
                 >
-                  ↗️ Open in New Tab
+                  <ExternalLink size={15} strokeWidth={2} /> Open in New Tab
                 </a>
               </div>
             </div>
@@ -437,7 +472,9 @@ export default function PreviewModal({
             color: '#666666'
           }}
         >
-          <span>🔒 End-to-End Vault Access Verified</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+            <ShieldCheck size={13} strokeWidth={2} color="#46d369" /> End-to-End Vault Access Verified
+          </span>
           <span>Tip: Press <strong>Esc</strong> to close viewer</span>
         </div>
       </div>

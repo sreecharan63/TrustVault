@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import { LogOut } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user, logout, isAdmin } = useAuth()
@@ -45,8 +46,12 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <button className="btn btn-danger" style={{ marginTop: '1.5rem', width: '100%', justifyContent: 'center' }} onClick={handleLogout}>
-          🚪 Sign Out
+        <button
+          className="btn btn-danger"
+          style={{ marginTop: '1.5rem', width: '100%', justifyContent: 'center', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+          onClick={handleLogout}
+        >
+          <LogOut size={15} strokeWidth={2} /> Sign Out
         </button>
       </div>
     </div>

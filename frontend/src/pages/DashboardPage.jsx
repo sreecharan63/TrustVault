@@ -9,6 +9,7 @@ import ShareModal from '../components/ShareModal.jsx'
 import PermissionsModal from '../components/PermissionsModal.jsx'
 import VersionHistoryModal from '../components/VersionHistoryModal.jsx'
 import ActivityModal from '../components/ActivityModal.jsx'
+import { RefreshCw, Upload, Shield, ArrowRight } from 'lucide-react'
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -44,7 +45,7 @@ export default function DashboardPage() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Welcome back, {user?.fullName || 'User'} 👋</h1>
+      <h1 className="page-title">Welcome back, {user?.fullName || 'User'}</h1>
 
       {stats && (
         <div className="grid-4 mb-2">
@@ -81,19 +82,21 @@ export default function DashboardPage() {
             className="btn btn-ghost btn-sm"
             onClick={fetchDashboardData}
             title="Refresh recent documents"
-            style={{ fontSize: '0.8rem', padding: '0.35rem 0.65rem', border: '1px solid #333' }}
+            style={{ fontSize: '0.8rem', padding: '0.35rem 0.65rem', border: '1px solid #333', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
-            🔄 Refresh
+            <RefreshCw size={13} strokeWidth={2} /> Refresh
           </button>
-          <Link to="/documents" className="btn btn-ghost btn-sm">View all →</Link>
+          <Link to="/documents" className="btn btn-ghost btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+            View all <ArrowRight size={13} strokeWidth={2} />
+          </Link>
         </div>
       </div>
 
       {recent.length === 0 ? (
         <div className="empty-state">
           <p>No documents yet.</p>
-          <Link to="/documents" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-            📤 Upload your first document
+          <Link to="/documents" className="btn btn-primary" style={{ marginTop: '1rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Upload size={14} strokeWidth={2} /> Upload your first document
           </Link>
         </div>
       ) : (
@@ -105,7 +108,8 @@ export default function DashboardPage() {
               onClick={() => setSelectedDoc(doc)}
               actions={[
                 {
-                  label: '🔐 Permissions & Actions',
+                  icon: <Shield size={13} strokeWidth={2} />,
+                  label: 'Permissions & Actions',
                   onClick: () => setSelectedDoc(doc),
                   variant: 'btn-primary'
                 }

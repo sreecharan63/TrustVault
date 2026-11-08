@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { getDocumentPermissions, updateSharing, revokeSharing } from '../api/documents.js'
+import FileIcon from './FileIcon.jsx'
+import { Lock, X, Check, UserMinus } from 'lucide-react'
 
 export default function PermissionsModal({ doc, onClose, onRefresh }) {
   const [permissions, setPermissions] = useState([])
@@ -62,12 +64,23 @@ export default function PermissionsModal({ doc, onClose, onRefresh }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal" style={{ maxWidth: 640 }}>
-        <div className="modal-title">
-          🔐 Permissions
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+        <div className="modal-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+            <Lock size={18} strokeWidth={2} color="var(--accent)" /> Permissions
+          </span>
+          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, padding: 0 }}>
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
         <p className="text-muted mb-2">
-          {doc.originalFilename ? <span>📄 <strong>{doc.originalFilename}</strong></span> : <span>Document ID: <code>{doc.id}</code></span>}
+          {doc.originalFilename ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <FileIcon contentType={doc.contentType} filename={doc.originalFilename} size={15} />
+              <strong>{doc.originalFilename}</strong>
+            </span>
+          ) : (
+            <span>Document ID: <code>{doc.id}</code></span>
+          )}
         </p>
         {error && <div className="error-box">{error}</div>}
         {loading ? <div className="spinner" /> : permissions.length === 0 ? (
@@ -77,9 +90,9 @@ export default function PermissionsModal({ doc, onClose, onRefresh }) {
             <thead>
               <tr>
                 <th>Granted To</th>
-                <th style={{textAlign:'center'}}>Read Access</th>
-                <th style={{textAlign:'center'}}>Edit Access</th>
-                <th style={{textAlign:'center'}}>Download Access</th>
+                <th style={{ textAlign: 'center' }}>Read Access</th>
+                <th style={{ textAlign: 'center' }}>Edit Access</th>
+                <th style={{ textAlign: 'center' }}>Download Access</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -90,7 +103,7 @@ export default function PermissionsModal({ doc, onClose, onRefresh }) {
                     <div style={{ fontWeight: 600 }}>{p.recipientName || p.recipientEmail}</div>
                     <div className="text-muted" style={{ fontSize: '0.75rem' }}>{p.recipientEmail}</div>
                   </td>
-                  <td style={{textAlign:'center'}}>
+                  <td style={{ textAlign: 'center' }}>
                     <button
                       type="button"
                       onClick={() => handleToggle(p, 'canRead')}
@@ -104,14 +117,25 @@ export default function PermissionsModal({ doc, onClose, onRefresh }) {
                         fontWeight: 700,
                         padding: '0.3rem 0.65rem',
                         cursor: 'pointer',
-                        transition: 'all 0.15s ease'
+                        transition: 'all 0.15s ease',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
                       }}
                       title="Click button to toggle Read permission"
                     >
-                      {p.canRead ? '👁️ Read: ON' : '✕ OFF'}
+                      {p.canRead ? (
+                        <>
+                          <Check size={12} strokeWidth={2.5} /> Read: ON
+                        </>
+                      ) : (
+                        <>
+                          <X size={12} strokeWidth={2.5} /> OFF
+                        </>
+                      )}
                     </button>
                   </td>
-                  <td style={{textAlign:'center'}}>
+                  <td style={{ textAlign: 'center' }}>
                     <button
                       type="button"
                       onClick={() => handleToggle(p, 'canEdit')}
@@ -125,14 +149,25 @@ export default function PermissionsModal({ doc, onClose, onRefresh }) {
                         fontWeight: 700,
                         padding: '0.3rem 0.65rem',
                         cursor: 'pointer',
-                        transition: 'all 0.15s ease'
+                        transition: 'all 0.15s ease',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
                       }}
                       title="Click button to toggle Edit permission"
                     >
-                      {p.canEdit ? '✏️ Edit: ON' : '✕ OFF'}
+                      {p.canEdit ? (
+                        <>
+                          <Check size={12} strokeWidth={2.5} /> Edit: ON
+                        </>
+                      ) : (
+                        <>
+                          <X size={12} strokeWidth={2.5} /> OFF
+                        </>
+                      )}
                     </button>
                   </td>
-                  <td style={{textAlign:'center'}}>
+                  <td style={{ textAlign: 'center' }}>
                     <button
                       type="button"
                       onClick={() => handleToggle(p, 'canDownload')}
@@ -146,11 +181,22 @@ export default function PermissionsModal({ doc, onClose, onRefresh }) {
                         fontWeight: 700,
                         padding: '0.3rem 0.65rem',
                         cursor: 'pointer',
-                        transition: 'all 0.15s ease'
+                        transition: 'all 0.15s ease',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
                       }}
                       title="Click button to toggle Download permission"
                     >
-                      {p.canDownload ? '⬇️ Download: ON' : '✕ OFF'}
+                      {p.canDownload ? (
+                        <>
+                          <Check size={12} strokeWidth={2.5} /> Download: ON
+                        </>
+                      ) : (
+                        <>
+                          <X size={12} strokeWidth={2.5} /> OFF
+                        </>
+                      )}
                     </button>
                   </td>
                   <td>
@@ -158,8 +204,9 @@ export default function PermissionsModal({ doc, onClose, onRefresh }) {
                       className="btn btn-danger btn-sm"
                       onClick={() => handleRevoke(p.recipientEmail)}
                       disabled={actionLoading === p.recipientEmail}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                     >
-                      🚫 Revoke
+                      <UserMinus size={13} strokeWidth={2} /> Revoke
                     </button>
                   </td>
                 </tr>

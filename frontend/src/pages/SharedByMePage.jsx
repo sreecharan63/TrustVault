@@ -6,6 +6,7 @@ import DocumentCard from '../components/DocumentCard.jsx'
 import PermissionsModal from '../components/PermissionsModal.jsx'
 import ShareModal from '../components/ShareModal.jsx'
 import UploadModal from '../components/UploadModal.jsx'
+import { Upload, Lock, Share2, Sparkles, Check } from 'lucide-react'
 
 export default function SharedByMePage() {
   const { user } = useAuth()
@@ -51,8 +52,12 @@ export default function SharedByMePage() {
       <div className="flex-between mb-2">
         <h1 className="page-title" style={{ margin: 0 }}>Shared By Me</h1>
         {!isViewer && (
-          <button className="btn btn-primary" onClick={() => setShowUpload(true)}>
-            📤 Upload & Share
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowUpload(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <Upload size={14} strokeWidth={2} /> Upload & Share
           </button>
         )}
       </div>
@@ -70,15 +75,16 @@ export default function SharedByMePage() {
           color: '#ffffff',
           fontSize: '0.875rem'
         }}>
-          <span>
-            ✨ <strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently updated or shared (placed at the top with Netflix Red accent).
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Sparkles size={14} strokeWidth={2.2} color="var(--accent)" />
+            <span><strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently updated or shared (placed at the top with Netflix Red accent).</span>
           </span>
           <button
             className="btn btn-sm"
-            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
             onClick={() => { markSectionSeen('sharedByMe'); refreshCounts() }}
           >
-            ✓ Mark as viewed
+            <Check size={12} strokeWidth={2.5} /> Mark as viewed
           </button>
         </div>
       )}
@@ -91,10 +97,10 @@ export default function SharedByMePage() {
           {!isViewer && (
             <button
               className="btn btn-primary"
-              style={{ marginTop: '1rem' }}
+              style={{ marginTop: '1rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
               onClick={() => setShowUpload(true)}
             >
-              📤 Upload Document to Share
+              <Upload size={14} strokeWidth={2} /> Upload Document to Share
             </button>
           )}
         </div>
@@ -106,8 +112,8 @@ export default function SharedByMePage() {
               doc={doc}
               isUpdated={isItemUpdated('sharedByMe', doc)}
               actions={[
-                { label: '🔐 Manage Permissions', onClick: () => setPermsDoc(doc) },
-                { label: '🔗 Share More', onClick: () => setShareDoc(doc) },
+                { icon: <Lock size={13} strokeWidth={2} />, label: 'Manage Permissions', onClick: () => setPermsDoc(doc) },
+                { icon: <Share2 size={13} strokeWidth={2} />, label: 'Share More', onClick: () => setShareDoc(doc) },
               ]}
             />
           ))}

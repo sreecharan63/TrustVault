@@ -1,4 +1,6 @@
 import React from 'react'
+import FileIcon from './FileIcon.jsx'
+import { Sparkles } from 'lucide-react'
 
 export default function DocumentCard({ doc, actions, isUpdated, onClick }) {
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : '-'
@@ -8,16 +10,6 @@ export default function DocumentCard({ doc, actions, isUpdated, onClick }) {
     if (bytes < 1024) return bytes + ' B'
     if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
     return (bytes / 1048576).toFixed(2) + ' MB'
-  }
-
-  const typeIcon = (ct) => {
-    if (!ct) return '📄'
-    if (ct.includes('pdf')) return '📕'
-    if (ct.includes('image')) return '🖼️'
-    if (ct.includes('spreadsheet') || ct.includes('excel') || ct.includes('csv')) return '📊'
-    if (ct.includes('word') || ct.includes('document')) return '📘'
-    if (ct.includes('text')) return '📝'
-    return '📄'
   }
 
   const isNew = doc.createdAt === doc.updatedAt || doc.currentVersionNumber === 1
@@ -59,20 +51,35 @@ export default function DocumentCard({ doc, actions, isUpdated, onClick }) {
             padding: '0.2rem 0.6rem',
             borderRadius: '9999px',
             boxShadow: '0 2px 8px rgba(229, 9, 20, 0.6)',
-            textTransform: 'uppercase'
+            textTransform: 'uppercase',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.3rem'
           }}>
-            ✨ {isNew ? 'New' : 'Updated'}
+            <Sparkles size={11} strokeWidth={2.4} /> {isNew ? 'New' : 'Updated'}
           </span>
         </div>
       )}
 
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-        <span style={{ fontSize: '2rem' }}>{typeIcon(doc.contentType)}</span>
+        <div style={{
+          width: 44,
+          height: 44,
+          borderRadius: 8,
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid #2a2a2a',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0
+        }}>
+          <FileIcon contentType={doc.contentType} filename={doc.originalFilename} size={22} />
+        </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 600, fontSize: '0.95rem', wordBreak: 'break-word' }}>
+          <div style={{ fontWeight: 600, fontSize: '0.95rem', wordBreak: 'break-word', color: '#ffffff' }}>
             {doc.originalFilename}
           </div>
-          {doc.description && <div className="text-muted" style={{ marginTop: '0.2rem' }}>{doc.description}</div>}
+          {doc.description && <div className="text-muted" style={{ marginTop: '0.2rem', fontSize: '0.825rem' }}>{doc.description}</div>}
           <div className="text-muted" style={{ marginTop: '0.35rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.8rem' }}>
             <span>{fmtSize(doc.fileSize)}</span>
             <span>Created {fmtDate(doc.createdAt)}</span>
@@ -116,7 +123,9 @@ export default function DocumentCard({ doc, actions, isUpdated, onClick }) {
                 a.onClick(e)
               }}
               title={a.title || a.label}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
+              {a.icon}
               {a.label}
             </button>
           ))}

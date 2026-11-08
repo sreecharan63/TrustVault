@@ -4,6 +4,18 @@ import { useNotifications } from '../contexts/NotificationContext.jsx'
 import { getMyFileRequests, getAllFileRequests, resolveFileRequest } from '../api/requests.js'
 import { downloadDocument } from '../api/documents.js'
 import NewRequestModal from '../components/NewRequestModal.jsx'
+import FileIcon from '../components/FileIcon.jsx'
+import {
+  Shield,
+  FileText,
+  Plus,
+  Sparkles,
+  Check,
+  X,
+  Download,
+  Paperclip,
+  Send
+} from 'lucide-react'
 
 export default function RequestsPage() {
   const { user, isAdmin } = useAuth()
@@ -132,7 +144,15 @@ export default function RequestsPage() {
       <div className="flex-between mb-2">
         <div>
           <h1 className="page-title" style={{ margin: 0 }}>
-            {isAdmin ? '🛡️ File Access Requests' : '📨 My File Requests'}
+            {isAdmin ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Shield size={22} color="var(--accent)" strokeWidth={2} /> File Access Requests
+              </span>
+            ) : (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                <FileText size={22} color="var(--accent)" strokeWidth={2} /> My File Requests
+              </span>
+            )}
           </h1>
           <p className="text-muted" style={{ marginTop: '0.25rem' }}>
             {isAdmin
@@ -141,8 +161,12 @@ export default function RequestsPage() {
           </p>
         </div>
         {!isAdmin && (
-          <button className="btn btn-primary" onClick={() => setShowNewModal(true)}>
-            ➕ Request a File
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowNewModal(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <Plus size={14} strokeWidth={2.5} /> Request a File
           </button>
         )}
       </div>
@@ -160,15 +184,16 @@ export default function RequestsPage() {
           color: '#ffffff',
           fontSize: '0.875rem'
         }}>
-          <span>
-            ✨ <strong>{updatedCount}</strong> request{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with Netflix Red accent).
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Sparkles size={14} strokeWidth={2.2} color="var(--accent)" />
+            <span><strong>{updatedCount}</strong> request{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with Netflix Red accent).</span>
           </span>
           <button
             className="btn btn-sm"
-            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
             onClick={() => { markSectionSeen('requests'); refreshCounts() }}
           >
-            ✓ Mark as viewed
+            <Check size={12} strokeWidth={2.5} /> Mark as viewed
           </button>
         </div>
       )}
@@ -195,8 +220,12 @@ export default function RequestsPage() {
         <div className="empty-state">
           <p>{isAdmin ? 'No file requests found in this section.' : "You haven't submitted any file requests yet."}</p>
           {!isAdmin && (
-            <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => setShowNewModal(true)}>
-              ➕ Request a File
+            <button
+              className="btn btn-primary"
+              style={{ marginTop: '1rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              onClick={() => setShowNewModal(true)}
+            >
+              <Plus size={14} strokeWidth={2.5} /> Request a File
             </button>
           )}
         </div>
@@ -233,8 +262,9 @@ export default function RequestsPage() {
                       </td>
                     )}
                     <td style={{ fontWeight: 600 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span>📄 {req.fileName}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                        <FileIcon filename={req.fileName} size={15} />
+                        <span>{req.fileName}</span>
                         {isUpdated && (
                           <span style={{
                             background: '#10b981',
@@ -242,73 +272,80 @@ export default function RequestsPage() {
                             fontSize: '0.65rem',
                             fontWeight: 700,
                             padding: '0.1rem 0.4rem',
-                            borderRadius: 9999
+                            borderRadius: 9999,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.2rem'
                           }}>
-                            ✨ {req.status !== 'PENDING' ? 'UPDATED' : 'NEW'}
+                            <Sparkles size={10} strokeWidth={2.4} /> {req.status !== 'PENDING' ? 'UPDATED' : 'NEW'}
                           </span>
                         )}
                       </div>
                     </td>
-                  <td>{getAccessBadge(req.accessSpecification)}</td>
-                  <td style={{ maxWidth: 260 }}>
-                    <div style={{ wordBreak: 'break-word' }}>{req.description}</div>
-                  </td>
-                  <td>{getStatusBadge(req.status)}</td>
-                  <td style={{ maxWidth: 240 }}>
-                    {req.fulfilledDocumentId && (
-                      <div style={{ marginBottom: '0.4rem' }}>
-                        <button
-                          className="btn btn-sm btn-primary"
-                          onClick={() => handleDownloadFulfilled(req.fulfilledDocumentId, req.fulfilledDocumentFilename || req.fileName)}
-                          title="Download fulfilled file"
-                        >
-                          ⬇ Download File
-                        </button>
-                        <div className="text-muted" style={{ fontSize: '0.75rem', marginTop: '0.2rem' }}>
-                          📎 {req.fulfilledDocumentFilename || req.fileName}
-                        </div>
-                      </div>
-                    )}
-                    {req.adminResponse ? (
-                      <div>
-                        <div>{req.adminResponse}</div>
-                        {req.resolvedByName && (
-                          <div className="text-muted" style={{ fontSize: '0.75rem' }}>by {req.resolvedByName}</div>
-                        )}
-                      </div>
-                    ) : (
-                      !req.fulfilledDocumentId && <span className="text-muted">—</span>
-                    )}
-                  </td>
-                  <td>{fmtDate(req.createdAt)}</td>
-                  {isAdmin && (
-                    <td>
-                      {req.status === 'PENDING' ? (
-                        <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <td>{getAccessBadge(req.accessSpecification)}</td>
+                    <td style={{ maxWidth: 260 }}>
+                      <div style={{ wordBreak: 'break-word' }}>{req.description}</div>
+                    </td>
+                    <td>{getStatusBadge(req.status)}</td>
+                    <td style={{ maxWidth: 240 }}>
+                      {req.fulfilledDocumentId && (
+                        <div style={{ marginBottom: '0.4rem' }}>
                           <button
                             className="btn btn-sm btn-primary"
-                            onClick={() => handleOpenResolve(req, 'APPROVED')}
-                            disabled={actionLoading === req.id}
-                            title="Accept request and send the file"
+                            onClick={() => handleDownloadFulfilled(req.fulfilledDocumentId, req.fulfilledDocumentFilename || req.fileName)}
+                            title="Download fulfilled file"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                           >
-                            ✓ Accept & Send File
+                            <Download size={12} strokeWidth={2} /> Download File
                           </button>
-                          <button
-                            className="btn btn-sm btn-danger"
-                            onClick={() => handleOpenResolve(req, 'REJECTED')}
-                            disabled={actionLoading === req.id}
-                            title="Reject request"
-                          >
-                            ✕ Reject
-                          </button>
+                          <div className="text-muted" style={{ fontSize: '0.75rem', marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Paperclip size={12} strokeWidth={2} /> {req.fulfilledDocumentFilename || req.fileName}
+                          </div>
+                        </div>
+                      )}
+                      {req.adminResponse ? (
+                        <div>
+                          <div>{req.adminResponse}</div>
+                          {req.resolvedByName && (
+                            <div className="text-muted" style={{ fontSize: '0.75rem' }}>by {req.resolvedByName}</div>
+                          )}
                         </div>
                       ) : (
-                        <span className="text-muted" style={{ fontSize: '0.8rem' }}>Resolved</span>
+                        !req.fulfilledDocumentId && <span className="text-muted">—</span>
                       )}
                     </td>
-                  )}
-                </tr>
-              )})}
+                    <td>{fmtDate(req.createdAt)}</td>
+                    {isAdmin && (
+                      <td>
+                        {req.status === 'PENDING' ? (
+                          <div style={{ display: 'flex', gap: '0.4rem' }}>
+                            <button
+                              className="btn btn-sm btn-primary"
+                              onClick={() => handleOpenResolve(req, 'APPROVED')}
+                              disabled={actionLoading === req.id}
+                              title="Accept request and send the file"
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                            >
+                              <Check size={12} strokeWidth={2.5} /> Accept & Send File
+                            </button>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => handleOpenResolve(req, 'REJECTED')}
+                              disabled={actionLoading === req.id}
+                              title="Reject request"
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                            >
+                              <X size={12} strokeWidth={2.5} /> Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-muted" style={{ fontSize: '0.8rem' }}>Resolved</span>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -329,9 +366,19 @@ export default function RequestsPage() {
       {resolvingRequest && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setResolvingRequest(null)}>
           <div className="modal">
-            <div className="modal-title">
-              {resolutionAction === 'APPROVED' ? '✅ Accept Request & Send File' : '❌ Reject File Request'}
-              <button className="btn btn-ghost btn-sm" onClick={() => setResolvingRequest(null)}>✕</button>
+            <div className="modal-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              {resolutionAction === 'APPROVED' ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <Check size={18} color="#46d369" strokeWidth={2.5} /> Accept Request & Send File
+                </span>
+              ) : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <X size={18} color="#f87171" strokeWidth={2.5} /> Reject File Request
+                </span>
+              )}
+              <button className="btn btn-ghost btn-sm" onClick={() => setResolvingRequest(null)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, padding: 0 }}>
+                <X size={16} strokeWidth={2} />
+              </button>
             </div>
 
             <p className="mb-1">
@@ -344,8 +391,8 @@ export default function RequestsPage() {
             <form onSubmit={handleConfirmResolve}>
               {resolutionAction === 'APPROVED' && (
                 <div className="form-group" style={{ background: 'var(--bg3)', padding: '0.9rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-                  <label className="form-label" style={{ fontWeight: 600, color: 'var(--text)' }}>
-                    📎 Attach & Send File *
+                  <label className="form-label" style={{ fontWeight: 600, color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Paperclip size={14} strokeWidth={2} /> Attach & Send File *
                   </label>
                   <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '0.5rem' }}>
                     Upload the requested file. It will be stored securely and automatically shared with <strong>{resolvingRequest.requesterName}</strong> according to their requested access level.
@@ -376,8 +423,15 @@ export default function RequestsPage() {
                   type="submit"
                   className={`btn ${resolutionAction === 'APPROVED' ? 'btn-primary' : 'btn-danger'}`}
                   disabled={actionLoading === resolvingRequest.id}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 >
-                  {resolutionAction === 'APPROVED' ? '📤 Accept & Send File' : 'Confirm Rejection'}
+                  {resolutionAction === 'APPROVED' ? (
+                    <>
+                      <Send size={13} strokeWidth={2} /> Accept & Send File
+                    </>
+                  ) : (
+                    'Confirm Rejection'
+                  )}
                 </button>
               </div>
             </form>

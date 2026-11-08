@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { getDocumentVersions, downloadVersion, restoreVersion } from '../api/documents.js'
+import FileIcon from './FileIcon.jsx'
+import { History, X, Download, RotateCcw } from 'lucide-react'
 
 export default function VersionHistoryModal({ doc, onClose, onRefresh }) {
   const [versions, setVersions] = useState([])
@@ -62,11 +64,18 @@ export default function VersionHistoryModal({ doc, onClose, onRefresh }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal" style={{ maxWidth: 680 }}>
-        <div className="modal-title">
-          📋 Version History
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+        <div className="modal-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+            <History size={18} strokeWidth={2} color="var(--accent)" /> Version History
+          </span>
+          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, padding: 0 }}>
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
-        <p className="text-muted mb-2">{doc.originalFilename}</p>
+        <p className="text-muted mb-2" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          <FileIcon contentType={doc.contentType} filename={doc.originalFilename} size={15} />
+          <strong>{doc.originalFilename}</strong>
+        </p>
         {error && <div className="error-box">{error}</div>}
         {loading ? <div className="spinner" /> : versions.length === 0 ? (
           <div className="empty-state">No previous versions</div>
@@ -86,11 +95,26 @@ export default function VersionHistoryModal({ doc, onClose, onRefresh }) {
                 <tr key={v.versionNumber}>
                   <td><strong>v{v.versionNumber}</strong></td>
                   <td>{fmtSize(v.fileSize)}</td>
-                  <td style={{fontSize:'0.75rem', maxWidth:120, overflow:'hidden', textOverflow:'ellipsis'}} title={v.checksum}>{v.checksum?.substring(0, 12)}…</td>
+                  <td style={{ fontSize: '0.75rem', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.checksum}>{v.checksum?.substring(0, 12)}…</td>
                   <td>{fmtDate(v.createdAt)}</td>
                   <td style={{ display: 'flex', gap: '0.4rem' }}>
-                    <button className="btn btn-ghost btn-sm" onClick={() => handleDownload(v.versionNumber)} disabled={!!actionLoading}>⬇</button>
-                    <button className="btn btn-primary btn-sm" onClick={() => handleRestore(v.versionNumber)} disabled={!!actionLoading}>↩ Restore</button>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => handleDownload(v.versionNumber)}
+                      disabled={!!actionLoading}
+                      title="Download this version"
+                      style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0.3rem 0.5rem' }}
+                    >
+                      <Download size={13} strokeWidth={2} />
+                    </button>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => handleRestore(v.versionNumber)}
+                      disabled={!!actionLoading}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.3rem 0.65rem' }}
+                    >
+                      <RotateCcw size={13} strokeWidth={2} /> Restore
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { createFileRequest } from '../api/requests.js'
+import { FilePlus, X, Send, RefreshCw } from 'lucide-react'
 
 export default function NewRequestModal({ onClose, onSuccess }) {
   const [fileName, setFileName] = useState('')
@@ -32,9 +33,13 @@ export default function NewRequestModal({ onClose, onSuccess }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
-        <div className="modal-title">
-          📄 Request File Access from Admin
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+        <div className="modal-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+            <FilePlus size={18} strokeWidth={2} color="var(--accent)" /> Request File Access from Admin
+          </span>
+          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, padding: 0 }}>
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
 
         {error && <div className="error-box">{error}</div>}
@@ -77,8 +82,21 @@ export default function NewRequestModal({ onClose, onSuccess }) {
 
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? '⏳ Submitting...' : '📨 Send Request to Admin'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              {loading ? (
+                <>
+                  <RefreshCw size={13} className="spin" /> Submitting...
+                </>
+              ) : (
+                <>
+                  <Send size={14} strokeWidth={2} /> Send Request to Admin
+                </>
+              )}
             </button>
           </div>
         </form>

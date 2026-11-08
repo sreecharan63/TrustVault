@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { editDocument } from '../api/documents.js'
+import { Edit3, X, Save, RefreshCw } from 'lucide-react'
 
 export default function EditDocumentModal({ doc, onClose, onSuccess }) {
   const [file, setFile] = useState(null)
@@ -30,9 +31,13 @@ export default function EditDocumentModal({ doc, onClose, onSuccess }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
-        <div className="modal-title">
-          ✏️ Edit Document
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+        <div className="modal-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+            <Edit3 size={18} strokeWidth={2} color="var(--accent)" /> Edit Document
+          </span>
+          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, padding: 0 }}>
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
         <p className="text-muted mb-2">Editing: {doc.originalFilename}</p>
         {error && <div className="error-box">{error}</div>}
@@ -55,8 +60,21 @@ export default function EditDocumentModal({ doc, onClose, onSuccess }) {
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? '⏳ Saving...' : '💾 Save Changes'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              {loading ? (
+                <>
+                  <RefreshCw size={13} className="spin" /> Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={14} strokeWidth={2} /> Save Changes
+                </>
+              )}
             </button>
           </div>
         </form>

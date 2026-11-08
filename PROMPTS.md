@@ -227,3 +227,42 @@
   5. Updated [`PreviewModal.jsx`](file:///d:/TrustVault/frontend/src/components/PreviewModal.jsx) to replace `🔍-` and `🔍+` zoom buttons with `<ZoomOut size={13} />` and `<ZoomIn size={13} />` line icons.
 - **Commit References**:  
   - [`7c7b9e1`](https://github.com/sreecharan63/TrustVault/commit/7c7b9e1) — *feat(ui): replace search and zoom emojis with vector line design icons and animated focus wrapper*
+
+---
+
+### Entry 15: 2026-11-09 — Complete UI Modernization: Replacing All Emoji Icons with Vector Design Line Icons
+- **Prompt to AI**:  
+  *"remove all emoji icons like img,doc, txt icons etc replace with design line"*
+- **What was wrong with it**:  
+  The application across modals, cards, badges, and pages relied heavily on raw Unicode emojis (e.g. `📄`, `📕`, `🖼️`, `📊`, `📘`, `📝`, `📤`, `⬇️`, `👁️`, `✏️`, `🔗`, `🔐`, `📋`, `🗑️`, `🛡️`, `✨`, `🚪`, `✅`, `🚫`). Emojis rendered inconsistently across different operating systems (Windows, macOS, Linux, Android, iOS), clashed with the dark Netflix theme aesthetic, and lacked uniform line weighting and accessibility.
+- **What was done instead**:  
+  1. **Reusable Dynamic Vector File Icon Component (`FileIcon.jsx`)**: Built a purpose-engineered vector icon component utilizing `lucide-react` stroke line icons with standardized `strokeWidth={1.8}` and MIME/extension color-coding:
+     - PDF: `<FileText color="#f87171" />` (Red)
+     - Images: `<ImageIcon color="#60a5fa" />` (Blue)
+     - Spreadsheets / Excel / CSV: `<FileSpreadsheet color="#4ade80" />` (Green)
+     - Word / Docs: `<FileText color="#818cf8" />` (Indigo)
+     - Code / Text: `<FileCode color="#fbbf24" />` (Amber)
+     - Videos: `<Video color="#c084fc" />` (Purple)
+     - Audio: `<Music color="#f472b6" />` (Pink)
+     - Archives: `<Archive color="#fb923c" />` (Orange)
+     - Generic / Fallback: `<File color="#9ca3af" />` (Slate)
+  2. **Modals Cleaned & Modernized**:
+     - `DocDetailModal.jsx`: Integrated `FileIcon` and Lucide icons (`Folder`, `User`, `Shield`, `ShieldCheck`, `Check`, `X`, `Users`, `Sparkles`, `Download`, `Eye`, `Edit3`, `Share2`, `History`, `Activity`, `Trash2`).
+     - `PreviewModal.jsx`: Replaced all header, copy, audio, fallback, and toolbar emojis with `FileIcon`, `ExternalLink`, `Download`, `Copy`, `Check`, `X`, and `ShieldCheck`.
+     - `ActivityModal.jsx`: Replaced all event badges with Lucide line icons (`Key`, `Edit3`, `Lock`, `Upload`, `Download`, `Eye`, `Trash2`, `History`, `RotateCcw`, `AlertTriangle`).
+     - `EditDocumentModal.jsx`: Added `Edit3`, `Save`, `RefreshCw`, `X`.
+     - `NewRequestModal.jsx`: Added `FilePlus`, `Send`, `RefreshCw`, `X`.
+     - `PermissionsModal.jsx`: Replaced lock, read, edit, and download toggles with `Lock`, `Check`, `X`, `UserMinus`.
+     - `ShareModal.jsx`: Replaced checkmarks, radio indicators, and share buttons with `Share2`, `Check`, `Eye`, `Edit3`, `Download`, `AlertTriangle`, `Info`.
+     - `UploadModal.jsx`: Added `Upload`, `X`, `RefreshCw`.
+     - `VersionHistoryModal.jsx`: Added `History`, `Download`, `RotateCcw`, `X`.
+  3. **Pages Cleaned & Modernized**:
+     - `DashboardPage.jsx`: Replaced waving hand, refresh, upload, and action emojis with `RefreshCw`, `Upload`, `Shield`, `ArrowRight`.
+     - `MyDocumentsPage.jsx`: Replaced card action emojis and status badges with Lucide line icons.
+     - `SharedWithMePage.jsx` & `SharedByMePage.jsx`: Replaced action emojis and notification indicators with line icons.
+     - `RequestsPage.jsx`: Replaced file icons, action buttons, and resolution modal emojis with `Shield`, `FileText`, `Plus`, `Sparkles`, `Check`, `X`, `Download`, `Paperclip`, `Send`.
+     - `ProfilePage.jsx`: Replaced sign-out emoji with `<LogOut size={15} />`.
+     - `AdminAuditPage.jsx`: Replaced audit event emojis, export buttons, and table indicators with vector line icons.
+  4. Verified complete elimination of Unicode emojis with automated regex scanning and confirmed 100% successful production build (`npm run build`).
+- **Commit References**:  
+  - [`73cad2d`](https://github.com/sreecharan63/TrustVault/commit/73cad2d) — *feat(ui): replace all emoji icons across components and pages with Lucide vector design line icons*

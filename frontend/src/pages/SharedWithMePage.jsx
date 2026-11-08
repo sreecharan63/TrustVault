@@ -6,7 +6,16 @@ import EditDocumentModal from '../components/EditDocumentModal.jsx'
 import ActivityModal from '../components/ActivityModal.jsx'
 import VersionHistoryModal from '../components/VersionHistoryModal.jsx'
 import PreviewModal from '../components/PreviewModal.jsx'
-import { Search } from 'lucide-react'
+import {
+  Search,
+  Eye,
+  Download,
+  Edit3,
+  History,
+  Activity,
+  Sparkles,
+  Check
+} from 'lucide-react'
 
 export default function SharedWithMePage() {
   const { isItemUpdated, markSectionSeen, refreshCounts } = useNotifications()
@@ -137,15 +146,16 @@ export default function SharedWithMePage() {
           color: '#ffffff',
           fontSize: '0.875rem'
         }}>
-          <span>
-            ✨ <strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with Netflix Red accent).
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Sparkles size={14} strokeWidth={2.2} color="var(--accent)" />
+            <span><strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with Netflix Red accent).</span>
           </span>
           <button
             className="btn btn-sm"
-            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
             onClick={() => { markSectionSeen('sharedWithMe'); refreshCounts() }}
           >
-            ✓ Mark as viewed
+            <Check size={12} strokeWidth={2.5} /> Mark as viewed
           </button>
         </div>
       )}
@@ -172,11 +182,37 @@ export default function SharedWithMePage() {
         <div className="grid-2">
           {sortedDocs.map(doc => {
             const actions = []
-            if (doc.canRead !== false) actions.push({ label: '👁️ Preview', onClick: () => handlePreview(doc) })
-            if (doc.canDownload) actions.push({ label: '⬇ Download', onClick: () => handleDownload(doc) })
-            if (doc.canEdit) actions.push({ label: '✏️ Edit', onClick: () => setEditDoc(doc) })
-            actions.push({ label: '📋 Versions', onClick: () => setVersionsDoc(doc) })
-            actions.push({ label: '📊 Activity', onClick: () => setActivityDoc(doc) })
+            if (doc.canRead !== false) {
+              actions.push({
+                icon: <Eye size={13} strokeWidth={2} />,
+                label: 'Preview',
+                onClick: () => handlePreview(doc)
+              })
+            }
+            if (doc.canDownload) {
+              actions.push({
+                icon: <Download size={13} strokeWidth={2} />,
+                label: 'Download',
+                onClick: () => handleDownload(doc)
+              })
+            }
+            if (doc.canEdit) {
+              actions.push({
+                icon: <Edit3 size={13} strokeWidth={2} />,
+                label: 'Edit',
+                onClick: () => setEditDoc(doc)
+              })
+            }
+            actions.push({
+              icon: <History size={13} strokeWidth={2} />,
+              label: 'Versions',
+              onClick: () => setVersionsDoc(doc)
+            })
+            actions.push({
+              icon: <Activity size={13} strokeWidth={2} />,
+              label: 'Activity',
+              onClick: () => setActivityDoc(doc)
+            })
             return (
               <DocumentCard
                 key={doc.id}

@@ -1,7 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { getAuditLogs } from '../api/admin.js'
 import PermissionsModal from '../components/PermissionsModal.jsx'
-import { Filter } from 'lucide-react'
+import FileIcon from '../components/FileIcon.jsx'
+import {
+  Filter,
+  Shield,
+  Download,
+  RefreshCw,
+  Sparkles,
+  Check,
+  Eye,
+  Edit3,
+  Lock,
+  Key,
+  Upload,
+  Trash2,
+  History,
+  RotateCcw,
+  ArrowRight,
+  AlertTriangle
+} from 'lucide-react'
 
 export default function AdminAuditPage() {
   const [logs, setLogs] = useState([])
@@ -94,26 +112,43 @@ export default function AdminAuditPage() {
 
   const fmtDate = (d) => d ? new Date(d).toLocaleString() : '-'
 
+  const renderEventLabel = (type) => {
+    switch (type) {
+      case 'PERMISSION_GRANT':
+        return <><Key size={11} strokeWidth={2} /> Granted Permission</>
+      case 'PERMISSION_UPDATE':
+        return <><Edit3 size={11} strokeWidth={2} /> Updated Permission</>
+      case 'PERMISSION_REVOKE':
+        return <><Lock size={11} strokeWidth={2} /> Revoked Permission</>
+      case 'DOCUMENT_UPLOAD':
+        return <><Upload size={11} strokeWidth={2} /> Uploaded Document</>
+      case 'DOCUMENT_DOWNLOAD':
+        return <><Download size={11} strokeWidth={2} /> Downloaded Document</>
+      case 'DOCUMENT_PREVIEW':
+        return <><Eye size={11} strokeWidth={2} /> Previewed Document</>
+      case 'DOCUMENT_UPDATE':
+        return <><Edit3 size={11} strokeWidth={2} /> Updated Metadata</>
+      case 'DOCUMENT_DELETE':
+        return <><Trash2 size={11} strokeWidth={2} /> Soft-Deleted</>
+      case 'VERSION_CREATE':
+        return <><History size={11} strokeWidth={2} /> Created Version</>
+      case 'VERSION_RESTORE':
+        return <><RotateCcw size={11} strokeWidth={2} /> Restored Version</>
+      default:
+        return type
+    }
+  }
+
   const formatEventBadge = (type, outcome) => {
     const isSuccess = outcome === 'SUCCESS'
     const colorClass = isSuccess ? 'badge-success' : 'badge-danger'
 
-    const labels = {
-      'PERMISSION_GRANT': '🔑 Granted Permission',
-      'PERMISSION_UPDATE': '✏️ Updated Permission',
-      'PERMISSION_REVOKE': '🚫 Revoked Permission',
-      'DOCUMENT_UPLOAD': '📤 Uploaded Document',
-      'DOCUMENT_DOWNLOAD': '⬇️ Downloaded Document',
-      'DOCUMENT_PREVIEW': '👁️ Previewed Document',
-      'DOCUMENT_UPDATE': '📝 Updated Metadata',
-      'DOCUMENT_DELETE': '🗑️ Soft-Deleted',
-      'VERSION_CREATE': '📦 Created Version',
-      'VERSION_RESTORE': '⏪ Restored Version'
-    }
-
     return (
-      <span className={`badge ${colorClass}`} style={{ fontWeight: 600 }}>
-        {labels[type] || type}
+      <span
+        className={`badge ${colorClass}`}
+        style={{ fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+      >
+        {renderEventLabel(type)}
       </span>
     )
   }
@@ -126,18 +161,18 @@ export default function AdminAuditPage() {
     return (
       <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
         {details.canRead && (
-          <span className="badge badge-success" style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem' }}>
-            👁️ Read
+          <span className="badge badge-success" style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <Eye size={11} strokeWidth={2} /> Read
           </span>
         )}
         {details.canEdit && (
-          <span className="badge badge-warning" style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem' }}>
-            ✏️ Edit
+          <span className="badge badge-warning" style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <Edit3 size={11} strokeWidth={2} /> Edit
           </span>
         )}
         {details.canDownload && (
-          <span className="badge" style={{ background: 'rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: 'var(--radius)', border: '1px solid rgba(255, 255, 255, 0.25)' }}>
-            ⬇️ Download
+          <span className="badge" style={{ background: 'rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: 'var(--radius)', border: '1px solid rgba(255, 255, 255, 0.25)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <Download size={11} strokeWidth={2} /> Download
           </span>
         )}
       </div>
@@ -237,7 +272,9 @@ export default function AdminAuditPage() {
     <div className="page">
       <div className="flex-between mb-2" style={{ flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 className="page-title" style={{ margin: 0 }}>🛡️ Global Audit Trail</h1>
+          <h1 className="page-title" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Shield size={24} color="var(--accent)" strokeWidth={2} /> Global Audit Trail
+          </h1>
           <p className="text-muted" style={{ marginTop: '0.25rem' }}>
             Cryptographically sealed, append-only record of all document accesses, permission grants, modifications, and security denials.
           </p>
@@ -248,16 +285,26 @@ export default function AdminAuditPage() {
             onClick={handleExportJSON}
             disabled={downloading}
             title="Download current filtered logs as JSON"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
-            📥 Export JSON
+            <Download size={13} strokeWidth={2} /> Export JSON
           </button>
           <button
             className="btn btn-primary btn-sm"
             onClick={handleExportCSV}
             disabled={downloading}
             title="Download current filtered logs as CSV"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
-            {downloading ? '⏳ Exporting...' : '📥 Download Audit CSV'}
+            {downloading ? (
+              <>
+                <RefreshCw size={13} className="spin" /> Exporting...
+              </>
+            ) : (
+              <>
+                <Download size={13} strokeWidth={2} /> Download Audit CSV
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -276,15 +323,16 @@ export default function AdminAuditPage() {
           color: '#ffffff',
           fontSize: '0.875rem'
         }}>
-          <span>
-            ✨ <strong>{newCount}</strong> newly recorded audit event{newCount > 1 ? 's' : ''} (highlighted below with Netflix Red border and NEW tag).
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Sparkles size={14} strokeWidth={2.2} color="var(--accent)" />
+            <span><strong>{newCount}</strong> newly recorded audit event{newCount > 1 ? 's' : ''} (highlighted below with Netflix Red border and NEW tag).</span>
           </span>
           <button
             className="btn btn-sm"
-            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
             onClick={markAuditsAsViewed}
           >
-            ✓ Mark as viewed
+            <Check size={12} strokeWidth={2.5} /> Mark as viewed
           </button>
         </div>
       )}
@@ -351,7 +399,11 @@ export default function AdminAuditPage() {
                     <th>Timestamp</th>
                     <th>Action</th>
                     <th>Document</th>
-                    <th>From ➔ To</th>
+                    <th>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                        From <ArrowRight size={11} strokeWidth={2.5} /> To
+                      </span>
+                    </th>
                     <th>Access Details</th>
                     <th>Outcome</th>
                     <th>Admin Action</th>
@@ -405,7 +457,10 @@ export default function AdminAuditPage() {
                         <td>
                           {fileName ? (
                             <div>
-                              <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>📄 {fileName}</div>
+                              <div style={{ fontWeight: 600, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <FileIcon filename={fileName} size={14} />
+                                <span>{fileName}</span>
+                              </div>
                               {log.resourceId && (
                                 <div className="text-muted" style={{ fontSize: '0.7rem' }}>
                                   ID: {log.resourceId.substring(0, 8)}...
@@ -417,14 +472,14 @@ export default function AdminAuditPage() {
                           )}
                         </td>
 
-                        {/* From ➔ To */}
+                        {/* From -> To */}
                         <td>
                           <div style={{ fontSize: '0.85rem' }}>
                             <strong>From:</strong> <span style={{ color: 'var(--text)' }}>{log.actorEmail || 'System'}</span>
                           </div>
                           {recipient && (
-                            <div style={{ marginTop: '0.25rem', fontSize: '0.85rem', color: '#60a5fa' }}>
-                              <strong>➔ To:</strong> {recipient}
+                            <div style={{ marginTop: '0.25rem', fontSize: '0.85rem', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <ArrowRight size={11} strokeWidth={2.5} /> <strong>To:</strong> {recipient}
                             </div>
                           )}
                         </td>
@@ -443,8 +498,8 @@ export default function AdminAuditPage() {
                             </span>
                           )}
                           {d.reason && (
-                            <span style={{ color: '#f87171', fontWeight: 600, fontSize: '0.75rem', display: 'block' }}>
-                              ⚠️ Denied: {d.reason}
+                            <span style={{ color: '#f87171', fontWeight: 600, fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem' }}>
+                              <AlertTriangle size={12} strokeWidth={2} /> Denied: {d.reason}
                             </span>
                           )}
                           {!d.canRead && !d.canEdit && !d.canDownload && !d.reason && !d.versionNumber && !d.fileSize && (
@@ -479,7 +534,7 @@ export default function AdminAuditPage() {
                               })}
                               title="Modify active permissions for this document directly"
                             >
-                              🔐 Change Perms
+                              <Lock size={12} strokeWidth={2} /> Change Perms
                             </button>
                           ) : (
                             <span className="text-muted" style={{ fontSize: '0.75rem' }}>—</span>

@@ -2,6 +2,18 @@ import React, { useState, useEffect } from 'react'
 import { shareDocument, getDocumentPermissions } from '../api/documents.js'
 import { getShareableUsers } from '../api/auth.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import FileIcon from './FileIcon.jsx'
+import {
+  Share2,
+  X,
+  Check,
+  Eye,
+  Edit3,
+  Download,
+  AlertTriangle,
+  Info,
+  RefreshCw
+} from 'lucide-react'
 
 export default function ShareModal({ doc, onClose, onSuccess }) {
   const { user: currentUser } = useAuth()
@@ -95,11 +107,18 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
-        <div className="modal-title">
-          🔗 Share Document
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+        <div className="modal-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+            <Share2 size={18} strokeWidth={2} color="var(--accent)" /> Share Document
+          </span>
+          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, padding: 0 }}>
+            <X size={16} strokeWidth={2} />
+          </button>
         </div>
-        <p className="text-muted mb-2">Sharing: <strong>{doc.originalFilename}</strong></p>
+        <p className="text-muted mb-2" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          <FileIcon contentType={doc.contentType} filename={doc.originalFilename} size={15} />
+          <span>Sharing: <strong>{doc.originalFilename}</strong></span>
+        </p>
 
         {error && <div className="error-box">{error}</div>}
 
@@ -145,13 +164,13 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
               ))}
             </datalist>
             {isSelf && (
-              <small style={{ color: 'var(--danger)', display: 'block', marginTop: '0.3rem' }}>
-                ⚠️ You cannot share a document with yourself.
+              <small style={{ color: 'var(--danger)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.3rem' }}>
+                <AlertTriangle size={12} strokeWidth={2} /> You cannot share a document with yourself.
               </small>
             )}
             {isAlreadyShared && (
-              <small style={{ color: 'var(--warning)', display: 'block', marginTop: '0.3rem' }}>
-                ℹ️ Already shared with this user. Manage their access via the "Perms" button on the card.
+              <small style={{ color: 'var(--warning)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.3rem' }}>
+                <Info size={12} strokeWidth={2} /> Already shared with this user. Manage their access via the "Perms" button on the card.
               </small>
             )}
           </div>
@@ -182,9 +201,17 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
                   transition: 'all 0.2s ease'
                 }}
               >
-                <span style={{ fontSize: '1.25rem' }}>{canRead ? '✅' : '⚪'}</span>
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22 }}>
+                  {canRead ? (
+                    <Check size={18} strokeWidth={2.5} color="#34d399" />
+                  ) : (
+                    <div style={{ width: 14, height: 14, borderRadius: '50%', border: '1.5px solid #555' }} />
+                  )}
+                </span>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>👁️ Can Read</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Eye size={13} strokeWidth={2} /> Can Read
+                  </div>
                   <div style={{ fontSize: '0.72rem', opacity: 0.85 }}>Includes file download</div>
                 </div>
               </button>
@@ -207,9 +234,17 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
                   transition: 'all 0.2s ease'
                 }}
               >
-                <span style={{ fontSize: '1.25rem' }}>{canEdit ? '✅' : '⚪'}</span>
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22 }}>
+                  {canEdit ? (
+                    <Check size={18} strokeWidth={2.5} color="#fbbf24" />
+                  ) : (
+                    <div style={{ width: 14, height: 14, borderRadius: '50%', border: '1.5px solid #555' }} />
+                  )}
+                </span>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>✏️ Can Edit</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Edit3 size={13} strokeWidth={2} /> Can Edit
+                  </div>
                   <div style={{ fontSize: '0.72rem', opacity: 0.85 }}>Modify & new versions</div>
                 </div>
               </button>
@@ -234,9 +269,17 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
                   transition: 'all 0.2s ease'
                 }}
               >
-                <span style={{ fontSize: '1.25rem' }}>{(canDownload || canRead) ? '✅' : '⚪'}</span>
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22 }}>
+                  {(canDownload || canRead) ? (
+                    <Check size={18} strokeWidth={2.5} color="#60a5fa" />
+                  ) : (
+                    <div style={{ width: 14, height: 14, borderRadius: '50%', border: '1.5px solid #555' }} />
+                  )}
+                </span>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>⬇️ Can Download</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Download size={13} strokeWidth={2} /> Can Download
+                  </div>
                   <div style={{ fontSize: '0.72rem', opacity: 0.85 }}>{canRead ? 'Active via Read grant' : 'Download file directly'}</div>
                 </div>
               </button>
@@ -249,8 +292,17 @@ export default function ShareModal({ doc, onClose, onSuccess }) {
               type="submit"
               className="btn btn-primary"
               disabled={loading || isSelf || isAlreadyShared}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
             >
-              {loading ? '⏳ Sharing...' : '🔗 Share'}
+              {loading ? (
+                <>
+                  <RefreshCw size={13} className="spin" /> Sharing...
+                </>
+              ) : (
+                <>
+                  <Share2 size={14} strokeWidth={2} /> Share Document
+                </>
+              )}
             </button>
           </div>
         </form>

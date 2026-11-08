@@ -10,7 +10,21 @@ import PermissionsModal from '../components/PermissionsModal.jsx'
 import VersionHistoryModal from '../components/VersionHistoryModal.jsx'
 import ActivityModal from '../components/ActivityModal.jsx'
 import PreviewModal from '../components/PreviewModal.jsx'
-import { Search } from 'lucide-react'
+import {
+  Search,
+  Upload,
+  Eye,
+  Download,
+  Edit3,
+  Share2,
+  Lock,
+  History,
+  Activity,
+  Trash2,
+  Sparkles,
+  Check,
+  Info
+} from 'lucide-react'
 
 export default function MyDocumentsPage() {
   const { user, isAdmin } = useAuth()
@@ -157,7 +171,13 @@ export default function MyDocumentsPage() {
           )}
         </div>
         {!isViewer && (
-          <button className="btn btn-primary" onClick={() => setShowUpload(true)}>📤 Upload</button>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowUpload(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <Upload size={14} strokeWidth={2} /> Upload
+          </button>
         )}
       </div>
 
@@ -174,15 +194,16 @@ export default function MyDocumentsPage() {
           color: '#ffffff',
           fontSize: '0.875rem'
         }}>
-          <span>
-            ✨ <strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with Netflix Red accent).
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Sparkles size={14} strokeWidth={2.2} color="var(--accent)" />
+            <span><strong>{updatedCount}</strong> document{updatedCount > 1 ? 's' : ''} recently received or updated (placed at the top with Netflix Red accent).</span>
           </span>
           <button
             className="btn btn-sm"
-            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}
+            style={{ background: 'var(--accent)', color: '#fff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
             onClick={() => { markSectionSeen('documents'); refreshCounts() }}
           >
-            ✓ Mark as viewed
+            <Check size={12} strokeWidth={2.5} /> Mark as viewed
           </button>
         </div>
       )}
@@ -195,9 +216,15 @@ export default function MyDocumentsPage() {
           padding: '0.85rem 1.25rem',
           marginBottom: '1.25rem',
           color: '#93c5fd',
-          fontSize: '0.9rem'
+          fontSize: '0.9rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
         }}>
-          ℹ️ <strong>Logged in as Viewer:</strong> You have read-only privileges. Check <em>"Shared With Me"</em> in the navigation bar to access documents granted to you. Document uploading is reserved for <strong>Document Owners</strong>.
+          <Info size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
+          <div>
+            <strong>Logged in as Viewer:</strong> You have read-only privileges. Check <em>"Shared With Me"</em> in the navigation bar to access documents granted to you. Document uploading is reserved for <strong>Document Owners</strong>.
+          </div>
         </div>
       )}
 
@@ -223,7 +250,13 @@ export default function MyDocumentsPage() {
         <div className="empty-state">
           <p>No documents found.</p>
           {!isViewer && (
-            <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => setShowUpload(true)}>📤 Upload your first document</button>
+            <button
+              className="btn btn-primary"
+              style={{ marginTop: '1rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              onClick={() => setShowUpload(true)}
+            >
+              <Upload size={14} strokeWidth={2} /> Upload your first document
+            </button>
           )}
         </div>
       ) : (
@@ -234,14 +267,14 @@ export default function MyDocumentsPage() {
               doc={doc}
               isUpdated={isItemUpdated('documents', doc)}
               actions={[
-                { label: '👁️ Preview', onClick: () => handlePreview(doc) },
-                { label: '⬇ Download', onClick: () => handleDownload(doc) },
-                { label: '✏️ Edit', onClick: () => setEditDoc(doc) },
-                { label: '🔗 Share', onClick: () => setShareDoc(doc) },
-                { label: '🔐 Perms', onClick: () => setPermsDoc(doc) },
-                { label: '📋 Versions', onClick: () => setVersionsDoc(doc) },
-                { label: '📊 Activity', onClick: () => setActivityDoc(doc) },
-                { label: '🗑 Delete', onClick: () => handleDelete(doc), variant: 'btn-danger' },
+                { icon: <Eye size={13} strokeWidth={2} />, label: 'Preview', onClick: () => handlePreview(doc) },
+                { icon: <Download size={13} strokeWidth={2} />, label: 'Download', onClick: () => handleDownload(doc) },
+                { icon: <Edit3 size={13} strokeWidth={2} />, label: 'Edit', onClick: () => setEditDoc(doc) },
+                { icon: <Share2 size={13} strokeWidth={2} />, label: 'Share', onClick: () => setShareDoc(doc) },
+                { icon: <Lock size={13} strokeWidth={2} />, label: 'Perms', onClick: () => setPermsDoc(doc) },
+                { icon: <History size={13} strokeWidth={2} />, label: 'Versions', onClick: () => setVersionsDoc(doc) },
+                { icon: <Activity size={13} strokeWidth={2} />, label: 'Activity', onClick: () => setActivityDoc(doc) },
+                { icon: <Trash2 size={13} strokeWidth={2} />, label: 'Delete', onClick: () => handleDelete(doc), variant: 'btn-danger' },
               ]}
             />
           ))}
