@@ -210,4 +210,4 @@
   4. **Browser Download Lifecycle**: Appended `<a>` to `document.body` and deferred `URL.revokeObjectURL(url)` by 60 seconds so downloads complete reliably without network abortion.
   5. **Null-Safe Audit Details & Global Exception Handler**: Protected `Map.of` against null fields and added general exception handling in `GlobalExceptionHandler.java`.
 - **Commit References**:  
-  - `Upcoming Commit` — *fix(storage): add database blob persistence, fix read-only preview transaction, and prevent premature download url revocation*
+  - [`ce81d3b`](https://github.com/sreecharan63/TrustVault/commit/ce81d3b) — *fix(storage): add database blob persistence, fix read-only preview transaction, and prevent premature download url revocation*
