@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { Eye, EyeOff } from 'lucide-react'
 import { login as loginApi } from '../api/auth.js'
 import { getMe } from '../api/auth.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
@@ -7,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext.jsx'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -66,7 +68,38 @@ export default function LoginPage() {
               <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
               <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: '#b3b3b3' }}>Forgot password?</Link>
             </div>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required style={{ marginTop: '0.4rem' }} />
+            <div style={{ position: 'relative', marginTop: '0.4rem' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                style={{ paddingRight: '2.5rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                title={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  color: showPassword ? 'var(--accent)' : 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  cursor: 'pointer'
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '0.75rem', justifyContent: 'center', padding: '0.75rem' }}>
             {loading ? 'Signing in...' : 'Sign In'}
