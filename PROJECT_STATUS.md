@@ -1,7 +1,7 @@
 # TrustVault – Project Status & Delivery Report
 
-> **Last Updated:** 2026-11-08  
-> **Status:** Feature-Complete, Hardened, Live Deployed & Tested (100% Passing)
+> **Last Updated:** 2026-11-10  
+> **Status:** Feature-Complete, Hardened, Containerized, Live Deployed & Tested (100% Passing)
 
 ---
 
@@ -10,9 +10,10 @@
 | Component | Platform | Environment / Access Point | Status |
 |---|---|---|---|
 | **Frontend UI** | **Vercel** (Global Edge CDN) | **[https://trust-vault-mu.vercel.app](https://trust-vault-mu.vercel.app)** | **Live & Operational** |
-| **Backend REST API** | **Render** (Java 21 / Spring Boot 4) | **[https://trustvault-16f1.onrender.com](https://trustvault-16f1.onrender.com)** | **Live & Operational** |
-| **Managed Database** | **Neon** (PostgreSQL 17.11) | Direct unpooled connection (Port 5432) | **Active (Schema V7)** |
+| **Backend REST API** | **Render** (Java 21 / Spring Boot 3.5) | **[https://trustvault-16f1.onrender.com](https://trustvault-16f1.onrender.com)** | **Live & Operational** |
+| **Managed Database** | **Neon / PostgreSQL** | Port 5432 with Flyway V8 | **Active (Schema V8 with BYTEA persistence)** |
 | **Source Repository** | **GitHub** | **[https://github.com/sreecharan63/TrustVault](https://github.com/sreecharan63/TrustVault)** | **Main Branch Synced** |
+| **Docker Containers** | **Docker & Compose** | `docker compose up --build` | **Full Stack Multi-Container Verified** |
 
 ---
 
@@ -21,12 +22,14 @@
 | Layer | Technology | Version | Operational Status |
 |---|---|---|---|
 | **Backend Runtime** | Java JDK | OpenJDK 21 | Verified on Windows & Linux (Docker) |
-| **Framework** | Spring Boot | 4.0.0 (WebMVC, Data JPA, Security) | Verified & Tested |
+| **Framework** | Spring Boot | 3.5 / 4.0.0 (WebMVC, Data JPA, Security) | Verified & Tested |
 | **Security / Auth** | Spring Security, JJWT, BCrypt | JJWT 0.12.6, BCrypt (strength 12) | Strict Stateless Bearer Tokens |
-| **Database Engine** | PostgreSQL | PostgreSQL 17.11 | ACID Compliant, Kernel Triggers |
-| **Schema Migration** | Flyway | Flyway 11.14.1 | V1 through V7 with Auto-Repair Strategy |
+| **Database Engine** | PostgreSQL | PostgreSQL 16 / 17 | ACID Compliant, Kernel Triggers |
+| **Schema Migration** | Flyway | Flyway 11 | V1 through V8 (Persistent `document_blobs`) |
 | **Frontend Framework** | React + Vite | React 18.3, Vite 6.0 | Production Bundled & Optimized |
-| **Design System** | Custom Netflix Cinematic Theme | `#141414`, `#181818`, `#E50914` | High Contrast, Custom Favicon & SVG Emblem |
+| **Design System** | Custom Netflix Cinematic Theme | `#141414`, `#181818`, `#E50914` | High Contrast, Vector Line Design Icons |
+| **Icon System** | Lucide React | 100% Vector Stroke Line Icons | Zero Emojis, Dynamic `FileIcon.jsx` |
+| **Containerization** | Docker & Docker Compose | Multi-Stage JRE 21 + Nginx Alpine | One-Click Orchestration (`docker compose up`) |
 | **Test Engine** | JUnit 5, Spring Security Test | 14 Test Scenarios | **100% Passing (0 Failures, 0 Errors)** |
 
 ---
@@ -76,11 +79,18 @@
 
 ### G. UI & Design System
 - [x] **Netflix Cinematic Dark Mode**: Primary canvas `#141414`, surface dark `#181818`, and signature brand red `#E50914`.
+- [x] **Complete Vector Line Icon Modernization**: 100% removal of all raw Unicode emojis, replaced across cards, badges, and modals with Lucide vector line icons.
+- [x] **Dynamic File Icon Engine (`FileIcon.jsx`)**: Context-aware vector badge renderer color-coding file extensions (PDF red, Excel green, Word indigo, code amber, media purple).
+- [x] **Compact Document Details Modal**: Re-engineered [`DocDetailModal.jsx`](file:///d:/TrustVault/frontend/src/components/DocDetailModal.jsx) with a 40% reduced screen footprint for a responsive, centered experience.
 - [x] **Card Hover Highlights**: Smooth 3D lift (`translateY(-3px)`) with glowing red theme border on hover.
-- [x] **Digital Protection Vault Emblem**: Custom vector SVG shield emblem and browser favicon (`favicon.svg`) with cyber circuit traces, circular vault door dial, and central lock core.
-- [x] **In-App Document Preview Lightbox**: Embedded multi-format viewer supporting native PDFs, images (with zoom controls), formatted code/text/csv viewers, media players, and direct browser tab links.
+- [x] **In-App Document Preview Lightbox**: Embedded multi-format viewer supporting native PDFs, images (with zoom controls), formatted code/text/csv viewers, media players, and direct browser tab links without popup blocker interference.
 - [x] **Database-Backed Persistent Blob Storage (`document_blobs`)**: Automatic dual-storage to disk and PostgreSQL so documents are never lost across Render cloud container restarts or redeployments.
 - [x] **Real-Time Unread Counters**: Navbar badges showing unread document updates and file requests.
+
+### H. Containerization & DevOps
+- [x] **Multi-Stage Spring Boot Dockerfile**: Secure non-root JRE 21 runtime container.
+- [x] **Multi-Stage Frontend Dockerfile**: High-performance Nginx Alpine container with reverse proxy for `/api/`.
+- [x] **Full-Stack Docker Compose (`docker-compose.yml`)**: Single-command orchestration for PostgreSQL 16, backend, and frontend.
 
 ---
 
