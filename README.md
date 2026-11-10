@@ -129,19 +129,40 @@ cd backend
 
 ## 🚀 Running Locally from a Clean Clone
 
-### 1. Prerequisites
+### Option A: Running with Docker & Docker Compose (Recommended - Zero Setup)
+
+You can spin up the entire TrustVault stack (PostgreSQL 16, Spring Boot 3.5 Java 21 Backend, and React Frontend) with a single command:
+
+```bash
+docker compose up --build
+```
+
+- **Frontend Application:** `http://localhost:5173`
+- **Backend REST API:** `http://localhost:8080`
+- **PostgreSQL Database:** `localhost:5432` (database: `trustvault`, user: `postgres`, password: `postgrespassword`)
+
+To stop all containers:
+```bash
+docker compose down
+```
+
+---
+
+### Option B: Running Natively on Your Host
+
+#### 1. Prerequisites
 - **Java 21 JDK** (Eclipse Temurin recommended)
 - **Node.js (v18+) & npm**
-- **PostgreSQL 17**
+- **PostgreSQL 16 or 17**
 
-### 2. Backend Setup
+#### 2. Backend Setup
 ```bash
 cd backend
-# Run Spring Boot (Flyway automatically repairs and runs migrations V1 through V7)
+# Run Spring Boot (Flyway automatically runs migrations V1 through V8)
 ./mvnw spring-boot:run
 ```
 
-### 3. Frontend Setup
+#### 3. Frontend Setup
 ```bash
 cd frontend
 npm install

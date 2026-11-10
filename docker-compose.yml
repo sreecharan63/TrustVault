@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trustvault-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trustvault
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - trustvault-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d trustvault"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trustvault-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 8080
+      TRUSTVAULT_DB_URL: jdbc:postgresql://postgres:5432/trustvault
+      TRUSTVAULT_DB_USERNAME: postgres
+      TRUSTVAULT_DB_PASSWORD: postgrespassword
+      TRUSTVAULT_STORAGE_LOCATION: /app/storage
+      TRUSTVAULT_JWT_SECRET: F71F0F7788C945F3E48AC57A7F04E6BCB5A24D3906F21C61705D2DDE6422F367
+      TRUSTVAULT_CORS_ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173
+    ports:
+      - "8080:8080"
+    volumes:
+      - trustvault-storage:/app/storage
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8080
+    container_name: trustvault-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  trustvault-pgdata:
+  trustvault-storage:

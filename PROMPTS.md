@@ -282,4 +282,20 @@
   5. Compacted Section 2 ("Available Actions") 2-column grid button padding from `0.75rem` down to `0.45rem 0.65rem` with `fontSize: '0.8rem'` and `13px` stroke icons.
   6. Overall footprint reduced by ~40% vertically and ~25% horizontally, rendering a compact, balanced dialog.
 - **Commit References**:  
-  - [`9ad4960`](https://github.com/sreecharan63/TrustVault/commit/9ad4960) — *style(ui): compact DocDetailModal size, paddings, and button grid*
+  - [`e7231b5`](https://github.com/sreecharan63/TrustVault/commit/e7231b5) — *style(ui): compact DocDetailModal size, paddings, and button grid*
+
+---
+
+### Entry 17: 2026-11-10 — Containerization: Dockerfiles & One-Click Docker Compose Full-Stack Orchestration
+- **Prompt to AI**:  
+  *"generate a docker file to run the project and add to git"*
+- **What was missing**:  
+  Running the full stack locally required manual prerequisites (Java 21, Maven, Node.js, and local PostgreSQL setup) across multiple terminals. There was no root-level Docker configuration or Docker Compose orchestration to spin up the entire system with a single command.
+- **What was done instead**:  
+  1. **Root `Dockerfile`**: Built a multi-stage production Dockerfile (`eclipse-temurin:21-jdk-alpine` builder and non-root `eclipse-temurin:21-jre-alpine` runtime) that packages and runs the Spring Boot application on port 8080.
+  2. **Frontend `Dockerfile` & `nginx.conf`**: Created a multi-stage frontend Dockerfile (`node:20-alpine` builder and `nginx:alpine` runtime) that builds the Vite React app and serves it via Nginx on port 80 (mapped to 5173), including API reverse proxying to avoid CORS issues.
+  3. **One-Click `docker-compose.yml`**: Authored an orchestration file linking PostgreSQL 16 (with persistent volume `trustvault-pgdata` and automated healthchecks), Spring Boot backend, and React frontend with unified networking and environment variables.
+  4. Added `.dockerignore` files to keep build contexts clean and fast.
+  5. Updated `README.md` with full Docker instructions (`docker compose up --build`).
+- **Commit References**:  
+  - [`3416cb5`](https://github.com/sreecharan63/TrustVault/commit/3416cb5) — *feat(docker): add root Dockerfile, frontend Dockerfile, and docker-compose full-stack orchestration*
